@@ -62,12 +62,19 @@ class AnimatedPuzzleTilePosition extends ImplicitlyAnimatedWidget {
   final Widget child;
 
   @override
-  _AnimatedPuzzleTilePositionState createState() =>
+  AnimatedWidgetBaseState<AnimatedPuzzleTilePosition> createState() =>
       _AnimatedPuzzleTilePositionState();
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DoubleProperty('column', column));
+    properties.add(DoubleProperty('row', row));
+  }
 }
 
 class _AnimatedPuzzleTilePositionState
-    extends ImplicitlyAnimatedWidgetState<AnimatedPuzzleTilePosition> {
+    extends AnimatedWidgetBaseState<AnimatedPuzzleTilePosition> {
   Tween<double>? _column;
   Tween<double>? _row;
 
@@ -79,7 +86,6 @@ class _AnimatedPuzzleTilePositionState
   @override
   void didUpdateWidget(covariant AnimatedPuzzleTilePosition oldWidget) {
     super.didUpdateWidget(oldWidget);
-    print('${widget.column}');
   }
 
   @override

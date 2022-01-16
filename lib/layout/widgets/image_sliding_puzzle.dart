@@ -1,10 +1,10 @@
 import 'dart:ui' as ui;
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_puzzle_hack/layout/widgets/puzzle_board.dart';
 import 'package:flutter_puzzle_hack/layout/widgets/raw_image_tile.dart';
 import 'package:flutter_puzzle_hack/models/puzzle.dart';
+import 'package:flutter_puzzle_hack/models/tile.dart';
 
 typedef ImageSlidingPuzzleWidgetBuilder = Widget Function(
   BuildContext context,
@@ -14,7 +14,7 @@ typedef ImageSlidingPuzzleWidgetBuilder = Widget Function(
 
 typedef TileWidgetBuilder = Widget Function(
   BuildContext context,
-  int index,
+  Tile tile,
   Widget child,
 );
 
@@ -23,12 +23,14 @@ class ImageSlidingPuzzle extends StatefulWidget {
     Key? key,
     required this.imagePath,
     required this.puzzle,
+    required this.tiles,
     this.columnSpacing = 0,
     required this.tileBuilder,
   }) : super(key: key);
 
   final String imagePath;
   final Puzzle puzzle;
+  final List<Tile> tiles;
   final double columnSpacing;
   final TileWidgetBuilder tileBuilder;
 
@@ -103,25 +105,26 @@ class _ImageSlidingPuzzleState extends State<ImageSlidingPuzzle> {
           final maxWidth = size.width - (columns - 1) * widget.columnSpacing;
           final maxHeight = size.height - (rows - 1) * rowSpacing;
           final boardSize = Size(maxWidth, maxHeight);
-          final tileCount = puzzle.tiles.length;
           return PuzzleBoard(
             columns: columns,
             rows: rows,
             columnSpacing: widget.columnSpacing,
             children: [
-              for (int i = 0; i < tileCount; i++)
-                ...widget.puzzle.tiles.mapIndexed(
-                  (index, value) {
-                    final child = IndexedImageTile(
-                      index: value,
+              ...widget.tiles.map(
+                (tile) {
+                  return widget.tileBuilder(
+                    context,
+                    tile,
+                    IndexedImageTile(
+                      index: tile.correctIndex,
                       rows: rows,
                       columns: columns,
                       source: source,
                       boardSize: boardSize,
-                    );
-                    return widget.tileBuilder(context, index, child);
-                  },
-                )
+                    ),
+                  );
+                },
+              ),
             ],
           );
         },

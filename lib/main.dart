@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_puzzle_hack/layout/widgets/image_sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/layout/widgets/puzzle_tile_position.dart';
 import 'package:flutter_puzzle_hack/models/puzzle.dart';
+import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
+import 'package:flutter_puzzle_hack/models/tile.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +18,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  PuzzleNotifier notifier = PuzzleNotifier(
+  PuzzleController controller = PuzzleController(
     puzzle: const Puzzle(
       columns: 3,
       rows: 3,
@@ -25,21 +27,14 @@ class _MyAppState extends State<MyApp> {
   );
 
   @override
-  void dispose() {
-    notifier.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: NotifierProvider(
-        notifier: notifier,
-        child: const MyHomePage(),
+      home: MyHomePage(
+        controller: controller,
       ),
     );
   }
@@ -48,11 +43,13 @@ class _MyAppState extends State<MyApp> {
 class MyHomePage extends StatelessWidget {
   const MyHomePage({
     Key? key,
+    required this.controller,
   }) : super(key: key);
+
+  final PuzzleController controller;
 
   @override
   Widget build(BuildContext context) {
-    final puzzle = context.watch<PuzzleNotifier>().puzzle;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Puzzle Hack Challenge'),
@@ -61,24 +58,25 @@ class MyHomePage extends StatelessWidget {
         child: ImageSlidingPuzzle(
           // imagePath: 'assets/dash_fainting.gif',
           imagePath: 'assets/dash_square.png',
-          puzzle: puzzle,
+          puzzle: controller.puzzle,
+          tiles: controller.tiles,
           columnSpacing: 2,
-          tileBuilder: (context, index, child) {
-            if (puzzle.isEmptyTileIndex(index)) {
-              return PuzzleTile(
-                puzzle: puzzle,
-                index: index,
-                child: const SizedBox(),
-              );
-            }
+          tileBuilder: (context, tile, child) {
+            final effectiveChild =
+                controller.isEmptyTile(tile) ? const SizedBox() : child;
 
-            return PuzzleTile(
-              puzzle: puzzle,
-              index: index,
-              child: child,
+            return AnimatedBuilder(
+              animation: tile,
+              builder: (context, child) {
+                return PuzzleTile(
+                  controller: controller,
+                  tile: tile,
+                  child: child!,
+                );
+              },
+              child: effectiveChild,
             );
           },
-          // indexes: [0, 1, 2, 3, 4, 5, 6, 7, 8],
         ),
       ),
     );
@@ -88,22 +86,24 @@ class MyHomePage extends StatelessWidget {
 class PuzzleTile extends StatelessWidget {
   const PuzzleTile({
     Key? key,
-    required this.puzzle,
-    required this.index,
+    required this.controller,
+    required this.tile,
     required this.child,
   }) : super(key: key);
 
-  final Puzzle puzzle;
-  final int index;
+  final PuzzleController controller;
+  final Tile tile;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
+    final column = controller.columnOf(tile);
+    final row = controller.rowOf(tile);
     return AnimatedPuzzleTilePosition(
-      column: puzzle.columnOf(index).toDouble(),
-      row: puzzle.rowOf(index).toDouble(),
+      column: column,
+      row: row,
       duration: const Duration(milliseconds: 300),
-      curve: Curves.elasticOut,
+      curve: const ElasticOutCurve(1),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -112,33 +112,14 @@ class PuzzleTile extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
-            if (puzzle.isTileMovable(index)) {
-              final notifier = context.read<PuzzleNotifier>();
-              notifier.moveTiles(index);
+            if (controller.isTileMovable(tile)) {
+              controller.moveTiles(tile);
             }
           },
           child: child,
         ),
       ),
     );
-  }
-}
-
-class PuzzleNotifier extends ChangeNotifier {
-  PuzzleNotifier({
-    required Puzzle puzzle,
-  }) : _puzzle = puzzle;
-
-  Puzzle _puzzle;
-  Puzzle get puzzle => _puzzle;
-
-  bool isTileMovable(int index) {
-    return _puzzle.isTileMovable(index);
-  }
-
-  void moveTiles(int index) {
-    _puzzle = _puzzle.moveTiles(index);
-    notifyListeners();
   }
 }
 

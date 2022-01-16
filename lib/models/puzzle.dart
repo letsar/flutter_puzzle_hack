@@ -193,18 +193,3 @@ extension on List<int> {
     return to;
   }
 }
-
-class Tile {
-  const Tile({
-    required this.correctIndex,
-    required this.currentIndex,
-  });
-
-  final int currentIndex;
-  final int correctIndex;
-
-  @override
-  String toString() {
-    return 'Tile $correctIndex at $currentIndex';
-  }
-}
