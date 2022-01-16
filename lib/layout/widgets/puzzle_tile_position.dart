@@ -54,8 +54,9 @@ class AnimatedPuzzleTilePosition extends ImplicitlyAnimatedWidget {
     required this.row,
     required Curve curve,
     required Duration duration,
+    VoidCallback? onEnd,
     required this.child,
-  }) : super(key: key, curve: curve, duration: duration);
+  }) : super(key: key, curve: curve, duration: duration, onEnd: onEnd);
 
   final double column;
   final double row;

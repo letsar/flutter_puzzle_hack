@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_puzzle_hack/models/puzzle.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
 
@@ -5,6 +6,9 @@ class PuzzleController {
   PuzzleController({
     required Puzzle puzzle,
   })  : _puzzle = puzzle,
+        isSolved = ValueNotifier<bool>(puzzle.isComplete()),
+        tilesCompleted = ValueNotifier<int>(puzzle.numberOfCorrectTiles()),
+        moveCount = ValueNotifier<int>(0),
         tiles = _createTiles(puzzle.tiles);
 
   Puzzle _puzzle;
@@ -12,12 +16,16 @@ class PuzzleController {
 
   final List<Tile> tiles;
 
+  final ValueNotifier<bool> isSolved;
+  final ValueNotifier<int> tilesCompleted;
+  final ValueNotifier<int> moveCount;
+
   bool isEmptyTile(Tile tile) {
     return puzzle.emptyTileCorrectIndex == tile.correctIndex;
   }
 
   bool isTileMovable(Tile tile) {
-    return _puzzle.isTileMovable(tile.currentIndex);
+    return !_puzzle.isComplete() && _puzzle.isTileMovable(tile.currentIndex);
   }
 
   double columnOf(Tile tile) {
@@ -31,6 +39,12 @@ class PuzzleController {
   void moveTiles(Tile tile) {
     _puzzle = _puzzle.moveTiles(tile.currentIndex);
     _updateTiles(tiles, _puzzle.tiles);
+  }
+
+  void updateState() {
+    isSolved.value = _puzzle.isComplete();
+    tilesCompleted.value = _puzzle.numberOfCorrectTiles();
+    moveCount.value++;
   }
 }
 

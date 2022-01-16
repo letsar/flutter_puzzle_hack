@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_puzzle_hack/layout/widgets/image_sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/layout/widgets/puzzle_tile_position.dart';
@@ -22,7 +21,8 @@ class _MyAppState extends State<MyApp> {
     puzzle: const Puzzle(
       columns: 3,
       rows: 3,
-      tiles: [1, 4, 3, 5, 6, 7, 0, 2, 8],
+      tiles: [0, 1, 2, 3, 4, 5, 6, 8, 7],
+      // tiles: [1, 4, 3, 5, 6, 7, 0, 2, 8],
     ),
   );
 
@@ -33,8 +33,9 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(
-        controller: controller,
+      home: ValueProvider(
+        value: controller,
+        child: const MyHomePage(),
       ),
     );
   }
@@ -43,83 +44,132 @@ class _MyAppState extends State<MyApp> {
 class MyHomePage extends StatelessWidget {
   const MyHomePage({
     Key? key,
-    required this.controller,
   }) : super(key: key);
-
-  final PuzzleController controller;
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watchValue<PuzzleController>();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Puzzle Hack Challenge'),
       ),
       body: Center(
-        child: ImageSlidingPuzzle(
-          // imagePath: 'assets/dash_fainting.gif',
-          imagePath: 'assets/dash_square.png',
-          puzzle: controller.puzzle,
-          tiles: controller.tiles,
-          columnSpacing: 2,
-          tileBuilder: (context, tile, child) {
-            final effectiveChild =
-                controller.isEmptyTile(tile) ? const SizedBox() : child;
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ImageSlidingPuzzle(
+            imagePath: 'assets/dash_fainting.gif',
+            // imagePath: 'assets/dash_square.png',
+            puzzle: controller.puzzle,
+            tiles: controller.tiles,
+            columnSpacing: 2,
+            tileBuilder: (context, tile, child) {
+              final effectiveChild = controller.isEmptyTile(tile)
+                  ? PuzzleEmptyTile(
+                      tile: tile,
+                      child: child,
+                    )
+                  : child;
 
-            return AnimatedBuilder(
-              animation: tile,
-              builder: (context, child) {
-                return PuzzleTile(
-                  controller: controller,
-                  tile: tile,
-                  child: child!,
-                );
-              },
-              child: effectiveChild,
-            );
-          },
+              return AnimatedBuilder(
+                animation: tile,
+                builder: (context, child) {
+                  return PuzzleTile(
+                    tile: tile,
+                    child: child!,
+                  );
+                },
+                child: effectiveChild,
+              );
+            },
+          ),
         ),
       ),
     );
   }
 }
 
-class PuzzleTile extends StatelessWidget {
-  const PuzzleTile({
+class PuzzleEmptyTile extends StatelessWidget {
+  const PuzzleEmptyTile({
     Key? key,
-    required this.controller,
     required this.tile,
     required this.child,
   }) : super(key: key);
 
-  final PuzzleController controller;
   final Tile tile;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    final column = controller.columnOf(tile);
-    final row = controller.rowOf(tile);
+    final controller = context.watchValue<PuzzleController>();
+
+    return ValueListenableBuilder<bool>(
+      valueListenable: controller.isSolved,
+      builder: (context, isSolved, child) {
+        return AnimatedOpacity(
+          opacity: isSolved ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          child: child,
+        );
+      },
+      child: child,
+    );
+  }
+}
+
+class PuzzleTile extends StatefulWidget {
+  const PuzzleTile({
+    Key? key,
+    required this.tile,
+    required this.child,
+  }) : super(key: key);
+
+  final Tile tile;
+  final Widget child;
+
+  @override
+  State<PuzzleTile> createState() => _PuzzleTileState();
+}
+
+class _PuzzleTileState extends State<PuzzleTile> {
+  bool tapped = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watchValue<PuzzleController>();
+
+    final column = controller.columnOf(widget.tile);
+    final row = controller.rowOf(widget.tile);
     return AnimatedPuzzleTilePosition(
       column: column,
       row: row,
       duration: const Duration(milliseconds: 300),
       curve: const ElasticOutCurve(1),
+      onEnd: handleAnimationEnded,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(4),
         ),
         clipBehavior: Clip.antiAlias,
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: () {
-            if (controller.isTileMovable(tile)) {
-              controller.moveTiles(tile);
+            if (controller.isTileMovable(widget.tile)) {
+              tapped = true;
+              controller.moveTiles(widget.tile);
             }
           },
-          child: child,
+          child: widget.child,
         ),
       ),
     );
+  }
+
+  void handleAnimationEnded() {
+    if (tapped) {
+      tapped = false;
+      context.readValue<PuzzleController>().updateState();
+    }
   }
 }
 
@@ -135,15 +185,41 @@ class NotifierProvider<T extends Listenable> extends InheritedNotifier<T> {
         );
 }
 
+class ValueProvider<T> extends InheritedWidget {
+  const ValueProvider({
+    Key? key,
+    required this.value,
+    required Widget child,
+  }) : super(key: key, child: child);
+
+  final T value;
+
+  @override
+  bool updateShouldNotify(ValueProvider oldWidget) => value != oldWidget.value;
+}
+
 extension on BuildContext {
-  T watch<T extends Listenable>() {
-    return dependOnInheritedWidgetOfExactType<NotifierProvider<T>>()!.notifier!;
+  T watchValue<T>() {
+    return watchExactType<ValueProvider<T>>().value!;
   }
 
-  T read<T extends Listenable>() {
-    final widget =
-        getElementForInheritedWidgetOfExactType<NotifierProvider<T>>()!.widget
-            as InheritedNotifier<T>;
-    return widget.notifier!;
+  T readValue<T>() {
+    return readExactType<ValueProvider<T>>().value!;
+  }
+
+  T watchNotifier<T extends Listenable>() {
+    return watchExactType<NotifierProvider<T>>().notifier!;
+  }
+
+  T readNotifier<T extends Listenable>() {
+    return readExactType<NotifierProvider<T>>().notifier!;
+  }
+
+  T watchExactType<T extends InheritedWidget>() {
+    return dependOnInheritedWidgetOfExactType<T>()!;
+  }
+
+  T readExactType<T extends InheritedWidget>() {
+    return getElementForInheritedWidgetOfExactType<T>()!.widget as T;
   }
 }
