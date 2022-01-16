@@ -7,7 +7,7 @@ class PuzzleController {
     required Puzzle puzzle,
   })  : _puzzle = puzzle,
         isSolved = ValueNotifier<bool>(puzzle.isComplete()),
-        tilesCompleted = ValueNotifier<int>(puzzle.numberOfCorrectTiles()),
+        tilesLeft = ValueNotifier<int>(puzzle.tilesLeft),
         moveCount = ValueNotifier<int>(0),
         tiles = _createTiles(puzzle.tiles);
 
@@ -17,7 +17,7 @@ class PuzzleController {
   final List<Tile> tiles;
 
   final ValueNotifier<bool> isSolved;
-  final ValueNotifier<int> tilesCompleted;
+  final ValueNotifier<int> tilesLeft;
   final ValueNotifier<int> moveCount;
 
   bool isEmptyTile(Tile tile) {
@@ -39,13 +39,18 @@ class PuzzleController {
   void moveTiles(Tile tile) {
     _puzzle = _puzzle.moveTiles(tile.currentIndex);
     _updateTiles(tiles, _puzzle.tiles);
+    updateState();
   }
 
   void updateState() {
     isSolved.value = _puzzle.isComplete();
-    tilesCompleted.value = _puzzle.numberOfCorrectTiles();
+    tilesLeft.value = puzzle.tilesLeft;
     moveCount.value++;
   }
+}
+
+extension on Puzzle {
+  int get tilesLeft => tiles.length - numberOfCorrectTiles() - 1;
 }
 
 List<Tile> _createTiles(List<int> indexes) {

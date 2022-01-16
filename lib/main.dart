@@ -54,36 +54,82 @@ class MyHomePage extends StatelessWidget {
         title: const Text('Puzzle Hack Challenge'),
       ),
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ImageSlidingPuzzle(
-            imagePath: 'assets/dash_fainting.gif',
-            // imagePath: 'assets/dash_square.png',
-            puzzle: controller.puzzle,
-            tiles: controller.tiles,
-            columnSpacing: 2,
-            tileBuilder: (context, tile, child) {
-              final effectiveChild = controller.isEmptyTile(tile)
-                  ? PuzzleEmptyTile(
-                      tile: tile,
-                      child: child,
-                    )
-                  : child;
+        child: Column(
+          children: [
+            const NumberOfMoves(),
+            const TilesLeft(),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ImageSlidingPuzzle(
+                imagePath: 'assets/dash_fainting.gif',
+                // imagePath: 'assets/dash_square.png',
+                puzzle: controller.puzzle,
+                tiles: controller.tiles,
+                columnSpacing: 2,
+                tileBuilder: (context, tile, child) {
+                  final effectiveChild = controller.isEmptyTile(tile)
+                      ? PuzzleEmptyTile(
+                          tile: tile,
+                          child: child,
+                        )
+                      : child;
 
-              return AnimatedBuilder(
-                animation: tile,
-                builder: (context, child) {
-                  return PuzzleTile(
-                    tile: tile,
-                    child: child!,
+                  return AnimatedBuilder(
+                    animation: tile,
+                    builder: (context, child) {
+                      return PuzzleTile(
+                        tile: tile,
+                        child: child!,
+                      );
+                    },
+                    child: effectiveChild,
                   );
                 },
-                child: effectiveChild,
-              );
-            },
-          ),
+              ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class NumberOfMoves extends StatelessWidget {
+  const NumberOfMoves({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watchValue<PuzzleController>();
+    return ValueListenableBuilder<int>(
+      valueListenable: controller.moveCount,
+      builder: (context, numberOfMoves, child) {
+        return Text(
+          'Number of moves: $numberOfMoves',
+          style: Theme.of(context).textTheme.headline6,
+        );
+      },
+    );
+  }
+}
+
+class TilesLeft extends StatelessWidget {
+  const TilesLeft({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watchValue<PuzzleController>();
+    return ValueListenableBuilder<int>(
+      valueListenable: controller.tilesLeft,
+      builder: (context, tilesLeft, child) {
+        return Text(
+          'Tiles left: $tilesLeft',
+          style: Theme.of(context).textTheme.headline6,
+        );
+      },
     );
   }
 }
@@ -107,7 +153,7 @@ class PuzzleEmptyTile extends StatelessWidget {
       builder: (context, isSolved, child) {
         return AnimatedOpacity(
           opacity: isSolved ? 1.0 : 0.0,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 500),
           curve: Curves.easeOut,
           child: child,
         );
@@ -168,7 +214,7 @@ class _PuzzleTileState extends State<PuzzleTile> {
   void handleAnimationEnded() {
     if (tapped) {
       tapped = false;
-      context.readValue<PuzzleController>().updateState();
+      // context.readValue<PuzzleController>().updateState();
     }
   }
 }
