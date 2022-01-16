@@ -9,12 +9,14 @@ class RenderImageTile extends RenderBox {
     required double dy,
     required Size sizeFactor,
     required BoxFit fit,
+    required Size boardSize,
   })  : _source = source,
         _sourceSize = Size(source.width.toDouble(), source.height.toDouble()),
         _dx = dx,
         _dy = dy,
         _sizeFactor = sizeFactor,
-        _fit = fit;
+        _fit = fit,
+        _boardSize = boardSize;
 
   Size _sourceSize;
   Image get source => _source;
@@ -68,6 +70,16 @@ class RenderImageTile extends RenderBox {
     markNeedsPaint();
   }
 
+  Size get boardSize => _boardSize;
+  Size _boardSize;
+  set boardSize(Size value) {
+    if (_boardSize == value) {
+      return;
+    }
+    _boardSize = value;
+    markNeedsPaint();
+  }
+
   @override
   bool get sizedByParent => true;
 
@@ -78,23 +90,20 @@ class RenderImageTile extends RenderBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final outputSize = Size(
-      size.width / _sizeFactor.width,
-      size.height / _sizeFactor.height,
-    );
     const alignment = Alignment.center;
     final inputRect = Offset.zero & _sourceSize;
-    final outputRect = Offset.zero & outputSize;
-    final sizes = applyBoxFit(_fit, _sourceSize, outputSize);
+    final outputRect = Offset.zero & _boardSize;
+    final sizes = applyBoxFit(_fit, _sourceSize, _boardSize);
     final inputSubrect = alignment.inscribe(sizes.source, inputRect);
     final outputSubrect = alignment.inscribe(sizes.destination, outputRect);
+    final scale = outputSubrect.height / inputSubrect.height;
 
     context.canvas.drawAtlas(
       source,
       [
         RSTransform.fromComponents(
           rotation: 0,
-          scale: outputSubrect.height / inputSubrect.height,
+          scale: scale,
           anchorX: 0,
           anchorY: 0,
           translateX: offset.dx + outputSubrect.left,
