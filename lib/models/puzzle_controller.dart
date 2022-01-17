@@ -6,6 +6,19 @@ import 'package:flutter_puzzle_hack/models/tile.dart';
 
 class PuzzleController {
   PuzzleController({
+    required int columns,
+    required int rows,
+    int? emptyTileCorrectIndex,
+  }) : this.fromPuzzle(
+          puzzle: Puzzle(
+            columns: columns,
+            rows: rows,
+            emptyTileCorrectIndex: emptyTileCorrectIndex,
+            tiles: List.generate(columns * rows, (index) => index),
+          ),
+        );
+
+  PuzzleController.fromPuzzle({
     required Puzzle puzzle,
   })  : _puzzle = puzzle,
         isSolved = ValueNotifier<bool>(puzzle.isComplete()),
@@ -52,7 +65,8 @@ class PuzzleController {
   }
 
   void shuffle() {
-    final tiles = List.generate(_puzzle.tiles.length, (index) => index);
+    final count = _puzzle.rows * _puzzle.columns;
+    final tiles = List.generate(count, (index) => index);
     Puzzle newPuzzle;
     do {
       tiles.shuffle(_random);

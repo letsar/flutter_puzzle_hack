@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_puzzle_hack/layout/widgets/image_sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/layout/widgets/puzzle_tile_position.dart';
 import 'package:flutter_puzzle_hack/layout/widgets/sliding_puzzle.dart';
-import 'package:flutter_puzzle_hack/models/puzzle.dart';
 import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
 
@@ -19,13 +18,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   PuzzleController controller = PuzzleController(
-    puzzle: const Puzzle(
-      columns: 3,
-      rows: 3,
-      tiles: [0, 1, 2, 3, 4, 5, 6, 8, 7],
-      // tiles: [1, 4, 3, 5, 6, 7, 0, 2, 8],
-    ),
-  );
+    columns: 6,
+    rows: 3,
+  )..shuffle();
 
   @override
   Widget build(BuildContext context) {
@@ -60,23 +55,27 @@ class MyHomePage extends StatelessWidget {
           children: [
             const NumberOfMoves(),
             const TilesLeft(),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SlidingPuzzle(
-                configuration: SlidingPuzzleConfiguration(
-                  columns: puzzle.columns,
-                  rows: puzzle.rows,
-                  columnSpacing: 2,
-                  tiles: controller.tiles,
-                  tileBuilder: (context, tile, child) {
-                    return AnimatedTile(
-                      tile: tile,
-                      child: child,
-                    );
-                  },
-                ),
-                delegate: const ImageSlidingPuzzleDelegate(
-                  imagePath: 'assets/dash_fainting.gif',
+            Expanded(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: SlidingPuzzle(
+                    configuration: SlidingPuzzleConfiguration(
+                      columns: puzzle.columns,
+                      rows: puzzle.rows,
+                      columnSpacing: 2,
+                      tiles: controller.tiles,
+                      tileBuilder: (context, tile, child) {
+                        return AnimatedTile(
+                          tile: tile,
+                          child: child,
+                        );
+                      },
+                    ),
+                    delegate: const ImageSlidingPuzzleDelegate(
+                      imagePath: 'assets/dash_fainting.gif',
+                    ),
+                  ),
                 ),
               ),
             ),
