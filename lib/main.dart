@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_puzzle_hack/layout/widgets/image_sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/layout/widgets/puzzle_tile_position.dart';
+import 'package:flutter_puzzle_hack/layout/widgets/sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/models/puzzle.dart';
 import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
@@ -49,6 +50,7 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watchValue<PuzzleController>();
+    final puzzle = controller.puzzle;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Puzzle Hack Challenge'),
@@ -60,36 +62,77 @@ class MyHomePage extends StatelessWidget {
             const TilesLeft(),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: ImageSlidingPuzzle(
-                imagePath: 'assets/dash_fainting.gif',
-                // imagePath: 'assets/dash_square.png',
-                puzzle: controller.puzzle,
-                tiles: controller.tiles,
-                columnSpacing: 2,
-                tileBuilder: (context, tile, child) {
-                  final effectiveChild = controller.isEmptyTile(tile)
-                      ? PuzzleEmptyTile(
-                          tile: tile,
-                          child: child,
-                        )
-                      : child;
-
-                  return AnimatedBuilder(
-                    animation: tile,
-                    builder: (context, child) {
-                      return PuzzleTile(
-                        tile: tile,
-                        child: child!,
-                      );
-                    },
-                    child: effectiveChild,
-                  );
-                },
+              child: SlidingPuzzle(
+                configuration: SlidingPuzzleConfiguration(
+                  columns: puzzle.columns,
+                  rows: puzzle.rows,
+                  columnSpacing: 2,
+                  tiles: controller.tiles,
+                  tileBuilder: (context, tile, child) {
+                    return AnimatedTile(
+                      tile: tile,
+                      child: child,
+                    );
+                  },
+                ),
+                delegate: const ImageSlidingPuzzleDelegate(
+                  imagePath: 'assets/dash_fainting.gif',
+                ),
               ),
             ),
+            const SuffleButton(),
           ],
         ),
       ),
+    );
+  }
+}
+
+class SuffleButton extends StatelessWidget {
+  const SuffleButton({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      child: const Text('Shuffle'),
+      onPressed: () {
+        context.readValue<PuzzleController>().shuffle();
+      },
+    );
+  }
+}
+
+class AnimatedTile extends StatelessWidget {
+  const AnimatedTile({
+    Key? key,
+    required this.tile,
+    required this.child,
+  }) : super(key: key);
+
+  final Tile tile;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watchValue<PuzzleController>();
+    final effectiveChild = controller.isEmptyTile(tile)
+        ? PuzzleEmptyTile(
+            tile: tile,
+            child: child,
+          )
+        : child;
+
+    return AnimatedBuilder(
+      animation: tile,
+      builder: (context, child) {
+        return PuzzleTile(
+          tile: tile,
+          child: child!,
+        );
+      },
+      child: effectiveChild,
     );
   }
 }

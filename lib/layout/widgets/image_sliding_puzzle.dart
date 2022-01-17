@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_puzzle_hack/layout/widgets/puzzle_board.dart';
 import 'package:flutter_puzzle_hack/layout/widgets/raw_image_tile.dart';
-import 'package:flutter_puzzle_hack/models/puzzle.dart';
+import 'package:flutter_puzzle_hack/layout/widgets/sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
 
 typedef ImageSlidingPuzzleWidgetBuilder = Widget Function(
@@ -12,24 +12,40 @@ typedef ImageSlidingPuzzleWidgetBuilder = Widget Function(
   ui.Image source,
 );
 
-typedef TileWidgetBuilder = Widget Function(
-  BuildContext context,
-  Tile tile,
-  Widget child,
-);
+class ImageSlidingPuzzleDelegate extends SlidingPuzzleDelegate {
+  const ImageSlidingPuzzleDelegate({
+    required this.imagePath,
+  });
+
+  final String imagePath;
+
+  @override
+  Widget build(BuildContext context, SlidingPuzzleConfiguration configuration) {
+    return ImageSlidingPuzzle(
+      imagePath: imagePath,
+      columns: configuration.columns,
+      rows: configuration.rows,
+      tiles: configuration.tiles,
+      columnSpacing: 2,
+      tileBuilder: configuration.tileBuilder,
+    );
+  }
+}
 
 class ImageSlidingPuzzle extends StatefulWidget {
   const ImageSlidingPuzzle({
     Key? key,
     required this.imagePath,
-    required this.puzzle,
+    required this.columns,
+    required this.rows,
     required this.tiles,
     this.columnSpacing = 0,
     required this.tileBuilder,
   }) : super(key: key);
 
   final String imagePath;
-  final Puzzle puzzle;
+  final int columns;
+  final int rows;
   final List<Tile> tiles;
   final double columnSpacing;
   final TileWidgetBuilder tileBuilder;
@@ -97,9 +113,8 @@ class _ImageSlidingPuzzleState extends State<ImageSlidingPuzzle> {
       aspectRatio: aspectRatio,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final puzzle = widget.puzzle;
-          final columns = puzzle.columns;
-          final rows = puzzle.rows;
+          final columns = widget.columns;
+          final rows = widget.rows;
           final size = constraints.biggest;
           final rowSpacing = widget.columnSpacing / aspectRatio;
           final maxWidth = size.width - (columns - 1) * widget.columnSpacing;

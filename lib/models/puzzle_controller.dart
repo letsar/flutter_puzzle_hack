@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_puzzle_hack/models/puzzle.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
@@ -9,13 +11,15 @@ class PuzzleController {
         isSolved = ValueNotifier<bool>(puzzle.isComplete()),
         tilesLeft = ValueNotifier<int>(puzzle.tilesLeft),
         moveCount = ValueNotifier<int>(0),
-        tiles = _createTiles(puzzle.tiles);
+        tiles = _createTiles(puzzle.tiles),
+        _random = Random();
+
+  final Random _random;
 
   Puzzle _puzzle;
   Puzzle get puzzle => _puzzle;
 
   final List<Tile> tiles;
-
   final ValueNotifier<bool> isSolved;
   final ValueNotifier<int> tilesLeft;
   final ValueNotifier<int> moveCount;
@@ -38,14 +42,37 @@ class PuzzleController {
 
   void moveTiles(Tile tile) {
     _puzzle = _puzzle.moveTiles(tile.currentIndex);
-    _updateTiles(tiles, _puzzle.tiles);
-    updateState();
+    update();
   }
 
   void updateState() {
     isSolved.value = _puzzle.isComplete();
-    tilesLeft.value = puzzle.tilesLeft;
+    tilesLeft.value = _puzzle.tilesLeft;
     moveCount.value++;
+  }
+
+  void shuffle() {
+    final tiles = List.generate(_puzzle.tiles.length, (index) => index);
+    Puzzle newPuzzle;
+    do {
+      tiles.shuffle(_random);
+      newPuzzle = Puzzle(
+        columns: _puzzle.columns,
+        rows: _puzzle.rows,
+        tiles: tiles,
+        emptyTileCorrectIndex: _puzzle.emptyTileCorrectIndex,
+      );
+    } while (
+        newPuzzle.getEmptyTileCurrentIndex() > 1 || !newPuzzle.isSolvable());
+
+    _puzzle = newPuzzle;
+    moveCount.value = -1;
+    update();
+  }
+
+  void update() {
+    _updateTiles(tiles, _puzzle.tiles);
+    updateState();
   }
 }
 
