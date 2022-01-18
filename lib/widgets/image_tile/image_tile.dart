@@ -1,7 +1,7 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
-import 'package:flutter_puzzle_hack/layout/rendering/image_tile.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_puzzle_hack/widgets/image_tile/render_image_tile.dart';
 
 class RawImageTile extends LeafRenderObjectWidget {
   const RawImageTile({

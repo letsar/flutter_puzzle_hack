@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_puzzle_hack/layout/widgets/puzzle_board.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
+import 'package:flutter_puzzle_hack/widgets/puzzle_board/puzzle_board.dart';
 
 typedef TileWidgetBuilder = Widget Function(
   BuildContext context,

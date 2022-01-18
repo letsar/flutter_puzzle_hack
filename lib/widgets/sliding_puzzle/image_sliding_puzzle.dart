@@ -1,10 +1,10 @@
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
-import 'package:flutter_puzzle_hack/layout/widgets/puzzle_board.dart';
-import 'package:flutter_puzzle_hack/layout/widgets/raw_image_tile.dart';
-import 'package:flutter_puzzle_hack/layout/widgets/sliding_puzzle.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
+import 'package:flutter_puzzle_hack/widgets/image_tile/image_tile.dart';
+import 'package:flutter_puzzle_hack/widgets/puzzle_board/puzzle_board.dart';
+import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/sliding_puzzle.dart';
 
 typedef ImageSlidingPuzzleWidgetBuilder = Widget Function(
   BuildContext context,

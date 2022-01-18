@@ -4,16 +4,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_puzzle_hack/models/puzzle.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
 
-class PuzzleController {
+class PuzzleController extends ChangeNotifier {
   PuzzleController({
     required int columns,
     required int rows,
-    int? emptyTileCorrectIndex,
   }) : this.fromPuzzle(
           puzzle: Puzzle(
             columns: columns,
             rows: rows,
-            emptyTileCorrectIndex: emptyTileCorrectIndex,
             tiles: List.generate(columns * rows, (index) => index),
           ),
         );
@@ -25,7 +23,12 @@ class PuzzleController {
         tilesLeft = ValueNotifier<int>(puzzle.tilesLeft),
         moveCount = ValueNotifier<int>(0),
         tiles = _createTiles(puzzle.tiles),
-        _random = Random();
+        columns = ValueNotifier<int>(puzzle.columns),
+        rows = ValueNotifier<int>(puzzle.rows),
+        _random = Random() {
+    columns.addListener(_handleDimensionsChanged);
+    rows.addListener(_handleDimensionsChanged);
+  }
 
   final Random _random;
 
@@ -36,6 +39,28 @@ class PuzzleController {
   final ValueNotifier<bool> isSolved;
   final ValueNotifier<int> tilesLeft;
   final ValueNotifier<int> moveCount;
+  final ValueNotifier<int> columns;
+  final ValueNotifier<int> rows;
+
+  void _handleDimensionsChanged() {
+    final length = tiles.length;
+    final count = columns.value * rows.value;
+    if (count < length) {
+      tiles.length = count;
+    } else if (count > length) {
+      tiles.addAll(
+        List.generate(
+          count - length,
+          (index) => Tile(
+            correctIndex: index + length,
+            currentIndex: index + length,
+          ),
+        ),
+      );
+    }
+    shuffle();
+    notifyListeners();
+  }
 
   bool isEmptyTile(Tile tile) {
     return puzzle.emptyTileCorrectIndex == tile.correctIndex;
@@ -65,16 +90,17 @@ class PuzzleController {
   }
 
   void shuffle() {
-    final count = _puzzle.rows * _puzzle.columns;
+    final rows = this.rows.value;
+    final columns = this.columns.value;
+    final count = rows * columns;
     final tiles = List.generate(count, (index) => index);
     Puzzle newPuzzle;
     do {
       tiles.shuffle(_random);
       newPuzzle = Puzzle(
-        columns: _puzzle.columns,
-        rows: _puzzle.rows,
+        columns: columns,
+        rows: rows,
         tiles: tiles,
-        emptyTileCorrectIndex: _puzzle.emptyTileCorrectIndex,
       );
     } while (
         newPuzzle.getEmptyTileCurrentIndex() > 1 || !newPuzzle.isSolvable());

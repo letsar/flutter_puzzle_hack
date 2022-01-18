@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_puzzle_hack/layout/widgets/image_sliding_puzzle.dart';
-import 'package:flutter_puzzle_hack/layout/widgets/puzzle_tile_position.dart';
-import 'package:flutter_puzzle_hack/layout/widgets/sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
+import 'package:flutter_puzzle_hack/widgets/puzzle_board/puzzle_tile_position.dart';
+import 'package:flutter_puzzle_hack/widgets/puzzle_panel/puzzle_panel.dart';
+import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/image_sliding_puzzle.dart';
+import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/sliding_puzzle.dart';
 
 void main() {
   runApp(const MyApp());
@@ -45,7 +46,6 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watchValue<PuzzleController>();
-    final puzzle = controller.puzzle;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Puzzle Hack Challenge'),
@@ -58,31 +58,89 @@ class MyHomePage extends StatelessWidget {
             Expanded(
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SlidingPuzzle(
-                    configuration: SlidingPuzzleConfiguration(
-                      columns: puzzle.columns,
-                      rows: puzzle.rows,
-                      columnSpacing: 2,
-                      tiles: controller.tiles,
-                      tileBuilder: (context, tile, child) {
-                        return AnimatedTile(
-                          tile: tile,
-                          child: child,
+                    padding: const EdgeInsets.all(8.0),
+                    child: AnimatedBuilder(
+                      animation: controller,
+                      builder: (context, child) {
+                        final puzzle = controller.puzzle;
+
+                        return PuzzlePanel(
+                          topLeftAreaExtent: 40,
+                          top: DimensionButton(
+                            valueNotifier: controller.columns,
+                            direction: Axis.horizontal,
+                          ),
+                          left: DimensionButton(
+                            valueNotifier: controller.rows,
+                            direction: Axis.vertical,
+                          ),
+                          main: SlidingPuzzle(
+                            configuration: SlidingPuzzleConfiguration(
+                              columns: puzzle.columns,
+                              rows: puzzle.rows,
+                              columnSpacing: 2,
+                              tiles: controller.tiles,
+                              tileBuilder: (context, tile, child) {
+                                return AnimatedTile(
+                                  tile: tile,
+                                  child: child,
+                                );
+                              },
+                            ),
+                            delegate: const ImageSlidingPuzzleDelegate(
+                              imagePath: 'assets/dash_fainting.gif',
+                            ),
+                          ),
                         );
                       },
-                    ),
-                    delegate: const ImageSlidingPuzzleDelegate(
-                      imagePath: 'assets/dash_fainting.gif',
-                    ),
-                  ),
-                ),
+                    )),
               ),
             ),
             const SuffleButton(),
           ],
         ),
       ),
+    );
+  }
+}
+
+class DimensionButton extends StatelessWidget {
+  const DimensionButton({
+    Key? key,
+    this.min = 2,
+    this.max = 8,
+    required this.valueNotifier,
+    required this.direction,
+  })  : assert(min < max),
+        super(key: key);
+
+  final int min;
+  final int max;
+  final ValueNotifier<int> valueNotifier;
+  final Axis direction;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: valueNotifier,
+      builder: (context, value, child) {
+        return Flex(
+          direction: direction,
+          children: [
+            TextButton(
+              onPressed: value > min ? () => valueNotifier.value-- : null,
+              child: Text('-'),
+            ),
+            Expanded(
+              child: Center(child: Text('$value')),
+            ),
+            TextButton(
+              onPressed: value < max ? () => valueNotifier.value++ : null,
+              child: Text('+'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

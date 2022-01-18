@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_puzzle_hack/layout/rendering/puzzle_board.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_puzzle_hack/widgets/puzzle_board/render_puzzle_board.dart';
 
 class PuzzleBoard extends MultiChildRenderObjectWidget {
   PuzzleBoard({
