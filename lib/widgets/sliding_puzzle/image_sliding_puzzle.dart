@@ -1,7 +1,6 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/widgets.dart';
-import 'package:flutter_puzzle_hack/models/tile.dart';
 import 'package:flutter_puzzle_hack/widgets/image_tile/image_tile.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_board/puzzle_board.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/sliding_puzzle.dart';
@@ -23,11 +22,7 @@ class ImageSlidingPuzzleDelegate extends SlidingPuzzleDelegate {
   Widget build(BuildContext context, SlidingPuzzleConfiguration configuration) {
     return ImageSlidingPuzzle(
       imagePath: imagePath,
-      columns: configuration.columns,
-      rows: configuration.rows,
-      tiles: configuration.tiles,
-      columnSpacing: 2,
-      tileBuilder: configuration.tileBuilder,
+      configuration: configuration,
     );
   }
 }
@@ -36,19 +31,11 @@ class ImageSlidingPuzzle extends StatefulWidget {
   const ImageSlidingPuzzle({
     Key? key,
     required this.imagePath,
-    required this.columns,
-    required this.rows,
-    required this.tiles,
-    this.columnSpacing = 0,
-    required this.tileBuilder,
+    required this.configuration,
   }) : super(key: key);
 
   final String imagePath;
-  final int columns;
-  final int rows;
-  final List<Tile> tiles;
-  final double columnSpacing;
-  final TileWidgetBuilder tileBuilder;
+  final SlidingPuzzleConfiguration configuration;
 
   @override
   _ImageSlidingPuzzleState createState() => _ImageSlidingPuzzleState();
@@ -103,31 +90,50 @@ class _ImageSlidingPuzzleState extends State<ImageSlidingPuzzle> {
 
   @override
   Widget build(BuildContext context) {
+    return RawImageSlidingPuzzle(
+      image: image,
+      configuration: widget.configuration,
+    );
+  }
+}
+
+class RawImageSlidingPuzzle extends StatelessWidget {
+  const RawImageSlidingPuzzle({
+    Key? key,
+    required this.image,
+    required this.configuration,
+  }) : super(key: key);
+
+  final ui.Image? image;
+  final SlidingPuzzleConfiguration configuration;
+
+  @override
+  Widget build(BuildContext context) {
     final source = image;
     if (source == null) {
       return const SizedBox();
     }
     final aspectRatio = source.width / source.height;
-
+    final columnSpacing = configuration.columnSpacing;
     return AspectRatio(
       aspectRatio: aspectRatio,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final columns = widget.columns;
-          final rows = widget.rows;
+          final columns = configuration.columns;
+          final rows = configuration.rows;
           final size = constraints.biggest;
-          final rowSpacing = widget.columnSpacing / aspectRatio;
-          final maxWidth = size.width - (columns - 1) * widget.columnSpacing;
+          final rowSpacing = columnSpacing / aspectRatio;
+          final maxWidth = size.width - (columns - 1) * columnSpacing;
           final maxHeight = size.height - (rows - 1) * rowSpacing;
           final boardSize = Size(maxWidth, maxHeight);
           return PuzzleBoard(
             columns: columns,
             rows: rows,
-            columnSpacing: widget.columnSpacing,
+            columnSpacing: columnSpacing,
             children: [
-              ...widget.tiles.map(
+              ...configuration.tiles.map(
                 (tile) {
-                  return widget.tileBuilder(
+                  return configuration.tileBuilder(
                     context,
                     tile,
                     IndexedImageTile(

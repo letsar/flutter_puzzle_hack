@@ -121,7 +121,7 @@ class RenderImageTile extends RenderBox {
       null,
       null,
       null,
-      Paint(),
+      Paint()..filterQuality = FilterQuality.high,
     );
   }
 }

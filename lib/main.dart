@@ -1,14 +1,178 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_board/puzzle_tile_position.dart';
-import 'package:flutter_puzzle_hack/widgets/puzzle_panel/puzzle_panel.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/image_sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/sliding_puzzle.dart';
+import 'package:flutter_puzzle_hack/widgets/widget_puzzle_board/render_widget_puzzle_board.dart';
+import 'package:flutter_puzzle_hack/widgets/widget_puzzle_board/widget_puzzle_board.dart';
+import 'package:flutter_puzzle_hack/widgets/widget_puzzle_board/widget_puzzle_tile_position.dart';
+import 'package:flutter_puzzle_hack/widgets/widget_tile/widget_tile.dart';
+import 'package:video_player/video_player.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MyWidgetApp());
 }
+
+class MyWidgetApp extends StatefulWidget {
+  const MyWidgetApp({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<MyWidgetApp> createState() => _MyWidgetAppState();
+}
+
+class _MyWidgetAppState extends State<MyWidgetApp> {
+  final painter = WidgetPuzzleBoardPainter();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: AspectRatio(
+            aspectRatio: 1,
+            child: WidgetPuzzleBoard(
+              rows: 2,
+              columns: 2,
+              columnSpacing: 0,
+              painter: painter,
+              source: Image.asset('assets/dash_fainting.gif'),
+              // source: VideoApp(),
+              children: [
+                WidgetPuzzleTilePosition(
+                  column: 0,
+                  row: 0,
+                  child: WidgetTile(index: 2, painter: painter),
+                ),
+                WidgetPuzzleTilePosition(
+                  column: 1,
+                  row: 0,
+                  child: WidgetTile(index: 1, painter: painter),
+                ),
+                WidgetPuzzleTilePosition(
+                  column: 0,
+                  row: 1,
+                  child: WidgetTile(index: 3, painter: painter),
+                ),
+                WidgetPuzzleTilePosition(
+                  column: 1,
+                  row: 1,
+                  child: WidgetTile(index: 0, painter: painter),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class VideoApp extends StatefulWidget {
+  @override
+  _VideoAppState createState() => _VideoAppState();
+}
+
+class _VideoAppState extends State<VideoApp> {
+  late final VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.network(
+        'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4')
+      ..initialize().then((_) {
+        // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
+        setState(() {});
+        _controller.setLooping(true);
+        _controller.play();
+      });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _controller.value.isInitialized
+        ? AspectRatio(
+            aspectRatio: _controller.value.aspectRatio,
+            child: VideoPlayer(_controller),
+          )
+        : Container();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
+}
+
+// class ImageApp extends StatelessWidget {
+//   const ImageApp({
+//     Key? key,
+//   }) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Flutter Demo',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//       ),
+//       home: Scaffold(
+//         body: Center(
+//           child: ImageMaker(
+//             isAnimated: true,
+//             size: const Size(300, 300),
+//             source: const Padding(
+//               padding: EdgeInsets.all(8.0),
+//               child: CircularProgressIndicator(),
+//             ),
+//             // source: Directionality(
+//             //   textDirection: TextDirection.ltr,
+//             //   child: Text(
+//             //     'hello',
+//             //     style: TextStyle(fontSize: 20).copyWith(color: Colors.black),
+//             //   ),
+//             // ),
+//             builder: (context, image, child) {
+//               return RawImageSlidingPuzzle(
+//                 image: image,
+//                 configuration: configuration,
+//               );
+//             },
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+// class ImagePainter extends CustomPainter {
+//   const ImagePainter({
+//     required this.image,
+//   });
+
+//   final ui.Image image;
+
+//   @override
+//   void paint(Canvas canvas, Size size) {
+//     canvas.drawImage(
+//       image,
+//       Offset.zero,
+//       Paint()
+//         ..filterQuality = FilterQuality.high
+//         ..isAntiAlias = true,
+//     );
+//   }
+
+//   @override
+//   bool shouldRepaint(ImagePainter oldDelegate) {
+//     return oldDelegate.image != image;
+//   }
+// }
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -19,7 +183,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   PuzzleController controller = PuzzleController(
-    columns: 6,
+    columns: 3,
     rows: 3,
   )..shuffle();
 
@@ -58,42 +222,32 @@ class MyHomePage extends StatelessWidget {
             Expanded(
               child: Center(
                 child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: AnimatedBuilder(
-                      animation: controller,
-                      builder: (context, child) {
-                        final puzzle = controller.puzzle;
+                  padding: const EdgeInsets.all(8.0),
+                  child: AnimatedBuilder(
+                    animation: controller,
+                    builder: (context, child) {
+                      final puzzle = controller.puzzle;
 
-                        return PuzzlePanel(
-                          topLeftAreaExtent: 40,
-                          top: DimensionButton(
-                            valueNotifier: controller.columns,
-                            direction: Axis.horizontal,
-                          ),
-                          left: DimensionButton(
-                            valueNotifier: controller.rows,
-                            direction: Axis.vertical,
-                          ),
-                          main: SlidingPuzzle(
-                            configuration: SlidingPuzzleConfiguration(
-                              columns: puzzle.columns,
-                              rows: puzzle.rows,
-                              columnSpacing: 2,
-                              tiles: controller.tiles,
-                              tileBuilder: (context, tile, child) {
-                                return AnimatedTile(
-                                  tile: tile,
-                                  child: child,
-                                );
-                              },
-                            ),
-                            delegate: const ImageSlidingPuzzleDelegate(
-                              imagePath: 'assets/dash_fainting.gif',
-                            ),
-                          ),
-                        );
-                      },
-                    )),
+                      return SlidingPuzzle(
+                        configuration: SlidingPuzzleConfiguration(
+                          columns: puzzle.columns,
+                          rows: puzzle.rows,
+                          columnSpacing: 2,
+                          tiles: controller.tiles,
+                          tileBuilder: (context, tile, child) {
+                            return AnimatedTile(
+                              tile: tile,
+                              child: child,
+                            );
+                          },
+                        ),
+                        delegate: const ImageSlidingPuzzleDelegate(
+                          imagePath: 'assets/dash_fainting.gif',
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
             const SuffleButton(),

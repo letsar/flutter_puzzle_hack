@@ -82,8 +82,7 @@ class RenderPuzzleBoard extends RenderBox
       final childParentData = child.parentData as PuzzleBoardParentData;
       final row = childParentData.row!;
       final column = childParentData.column!;
-      final parentData = child.parentData as PuzzleBoardParentData;
-      parentData.offset = Offset(
+      childParentData.offset = Offset(
         column * (childWidth + _columnSpacing),
         row * (childHeight + rowSpacing),
       );
