@@ -13,7 +13,7 @@ import 'package:flutter_puzzle_hack/widgets/widget_tile/widget_tile.dart';
 import 'package:video_player/video_player.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const MyWidgetApp());
 }
 
 class MyWidgetApp extends StatefulWidget {
@@ -30,14 +30,6 @@ class _MyWidgetAppState extends State<MyWidgetApp> {
 
   @override
   Widget build(BuildContext context) {
-    // return MaterialApp(
-    //   home: Scaffold(
-    //       body: Center(
-    //     child: SizedBox(
-    //         height: 500, width: 200, child: const MyTemplateHomePage()),
-    //   )),
-    // );
-
     return MaterialApp(
       home: Scaffold(
         body: Center(
@@ -48,7 +40,8 @@ class _MyWidgetAppState extends State<MyWidgetApp> {
               columns: 2,
               columnSpacing: 4,
               link: link,
-              source: const FlutterLogo(size: 300),
+              source: const MyTemplateHomePage(),
+              // source: const FlutterLogo(size: 300),
               // source: RepaintBoundary(
               //   child: Image.asset('assets/dash_avatars.png'),
               // ),
@@ -256,18 +249,14 @@ class MyHomePage extends StatelessWidget {
                             );
                           },
                         ),
-                        // delegate: const ImageSlidingPuzzleDelegate(
-                        //   imagePath: 'assets/dash_fainting.gif',
-                        // ),
                         delegate: WidgetSlidingPuzzleDelegate(
-                          // source: SizedBox.expand(
-                          //   child: ColoredBox(
-                          //     color: Colors.amber,
-                          //     child: FlutterLogo(),
-                          //   ),
-                          // ),
+                          source: SizedBox.expand(
+                            child: ColoredBox(
+                              color: Colors.amber,
+                              child: MyTemplateHomePage(),
+                            ),
+                          ),
                           // source: Image.asset('assets/dash_fainting.gif'),
-                          source: Image.asset('assets/dash_fainting.gif'),
                         ),
                       );
                     },
@@ -568,6 +557,7 @@ class _MyTemplateHomePageState extends State<MyTemplateHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: const Text('Flutter Demo Home Page'),
       ),

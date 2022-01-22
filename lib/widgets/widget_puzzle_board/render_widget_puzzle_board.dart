@@ -86,11 +86,10 @@ class RenderWidgetPuzzleBoard extends RenderBox
   // bool get alwaysNeedsCompositing => true;
 
   late Size _sourceSize;
-  late Rect _inputSubrect;
-  late Rect _outputSubrect;
   late double _childWidth;
   late double _childHeight;
   late double _rowSpacing;
+  late Rect _childClipRect;
 
   @override
   void performLayout() {
@@ -109,6 +108,7 @@ class RenderWidgetPuzzleBoard extends RenderBox
       _childWidth = 0;
       _childHeight = 0;
       _rowSpacing = 0;
+      _childClipRect = Rect.zero;
       childConstraints = BoxConstraints.tight(Size.zero);
     } else {
       _rowSpacing = _columnSpacing / _sourceSize.aspectRatio;
@@ -118,6 +118,12 @@ class RenderWidgetPuzzleBoard extends RenderBox
       childConstraints = BoxConstraints.tightFor(
         width: _childWidth,
         height: _childHeight,
+      );
+      _childClipRect = Rect.fromLTWH(
+        0,
+        0,
+        _childWidth,
+        _childHeight,
       );
     }
 
@@ -164,14 +170,10 @@ class RenderWidgetPuzzleBoard extends RenderBox
     );
 
     layer = context.pushClipRect(
-      false,
+      // Should be true only with RepaintBoundaries ?
+      true,
       offset,
-      Rect.fromLTWH(
-        0,
-        0,
-        _childWidth,
-        _childHeight,
-      ),
+      _childClipRect,
       (context, offset) {
         context.paintChild(source, offset - sourceOffset);
       },
@@ -181,13 +183,6 @@ class RenderWidgetPuzzleBoard extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    const alignment = Alignment.center;
-    final inputRect = Offset.zero & _sourceSize;
-    final outputRect = Offset.zero & size;
-    final sizes = applyBoxFit(BoxFit.cover, _sourceSize, size);
-    _inputSubrect = alignment.inscribe(sizes.source, inputRect);
-    _outputSubrect = alignment.inscribe(sizes.destination, outputRect);
-
     RenderBox? child = childAfter(firstChild!);
     while (child != null) {
       final childParentData = child.parentData! as PuzzleBoardParentData;
@@ -195,9 +190,4 @@ class RenderWidgetPuzzleBoard extends RenderBox
       child = childParentData.nextSibling;
     }
   }
-}
-
-class AlwaysRenderLayer extends ContainerLayer {
-  @override
-  bool get alwaysNeedsAddToScene => true;
 }
