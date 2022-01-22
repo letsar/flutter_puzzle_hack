@@ -1,5 +1,6 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_puzzle_hack/widgets/puzzle_board/render_puzzle_board.dart';
 
 typedef _Painter = ClipRectLayer? Function(
   PaintingContext context,
@@ -14,16 +15,10 @@ class WidgetPuzzleBoardLink {
   _Painter? get paint => _paint;
 }
 
-class WidgetPuzzleBoardParentData extends ContainerBoxParentData<RenderBox> {
-  double? row;
-  double? column;
-}
-
 class RenderWidgetPuzzleBoard extends RenderBox
     with
-        ContainerRenderObjectMixin<RenderBox, WidgetPuzzleBoardParentData>,
-        RenderBoxContainerDefaultsMixin<RenderBox,
-            WidgetPuzzleBoardParentData> {
+        ContainerRenderObjectMixin<RenderBox, PuzzleBoardParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, PuzzleBoardParentData> {
   RenderWidgetPuzzleBoard({
     List<RenderBox>? children,
     required int columns,
@@ -82,10 +77,13 @@ class RenderWidgetPuzzleBoard extends RenderBox
 
   @override
   void setupParentData(covariant RenderObject child) {
-    if (child.parentData is! WidgetPuzzleBoardParentData) {
-      child.parentData = WidgetPuzzleBoardParentData();
+    if (child.parentData is! PuzzleBoardParentData) {
+      child.parentData = PuzzleBoardParentData();
     }
   }
+
+  // @override
+  // bool get alwaysNeedsCompositing => true;
 
   late Size _sourceSize;
   late Rect _inputSubrect;
@@ -125,11 +123,10 @@ class RenderWidgetPuzzleBoard extends RenderBox
 
     visitTileChildren((child) {
       child.layout(childConstraints);
-      final childParentData = child.parentData as WidgetPuzzleBoardParentData;
+      final childParentData = child.parentData as PuzzleBoardParentData;
       final row = childParentData.row!;
       final column = childParentData.column!;
-      final parentData = child.parentData as WidgetPuzzleBoardParentData;
-      parentData.offset = Offset(
+      childParentData.offset = Offset(
         column * (_childWidth + _columnSpacing),
         row * (_childHeight + _rowSpacing),
       );
@@ -140,7 +137,7 @@ class RenderWidgetPuzzleBoard extends RenderBox
     RenderBox? child = childAfter(firstChild!);
     while (child != null) {
       visitor(child);
-      final childParentData = child.parentData! as WidgetPuzzleBoardParentData;
+      final childParentData = child.parentData! as PuzzleBoardParentData;
       child = childParentData.nextSibling;
     }
   }
@@ -166,11 +163,8 @@ class RenderWidgetPuzzleBoard extends RenderBox
       row * (_childHeight + _rowSpacing),
     );
 
-    final effectiveSourceOffet = offset - sourceOffset;
-    print('RRL i:$index, effectiveSourceOffet:$effectiveSourceOffet');
-    // context.paintChild(source, offset - sourceOffset);
     layer = context.pushClipRect(
-      this.needsCompositing,
+      false,
       offset,
       Rect.fromLTWH(
         0,
@@ -196,9 +190,14 @@ class RenderWidgetPuzzleBoard extends RenderBox
 
     RenderBox? child = childAfter(firstChild!);
     while (child != null) {
-      final childParentData = child.parentData! as WidgetPuzzleBoardParentData;
+      final childParentData = child.parentData! as PuzzleBoardParentData;
       context.paintChild(child, childParentData.offset + offset);
       child = childParentData.nextSibling;
     }
   }
+}
+
+class AlwaysRenderLayer extends ContainerLayer {
+  @override
+  bool get alwaysNeedsAddToScene => true;
 }

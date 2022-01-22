@@ -1,18 +1,19 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_board/puzzle_tile_position.dart';
-import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/image_sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/sliding_puzzle.dart';
+import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/widget_sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/widgets/widget_puzzle_board/render_widget_puzzle_board.dart';
 import 'package:flutter_puzzle_hack/widgets/widget_puzzle_board/widget_puzzle_board.dart';
-import 'package:flutter_puzzle_hack/widgets/widget_puzzle_board/widget_puzzle_tile_position.dart';
 import 'package:flutter_puzzle_hack/widgets/widget_tile/widget_tile.dart';
 import 'package:video_player/video_player.dart';
 
 void main() {
-  runApp(const MyWidgetApp());
+  runApp(const MyApp());
 }
 
 class MyWidgetApp extends StatefulWidget {
@@ -45,35 +46,33 @@ class _MyWidgetAppState extends State<MyWidgetApp> {
             child: WidgetPuzzleBoard(
               rows: 2,
               columns: 2,
-              columnSpacing: 0,
+              columnSpacing: 4,
               link: link,
-              // source: RepaintBoundary(
-              //   child: const MyTemplateHomePage(),
-              // ),
+              source: const FlutterLogo(size: 300),
               // source: RepaintBoundary(
               //   child: Image.asset('assets/dash_avatars.png'),
               // ),
 
-              source: Image.asset('assets/dash_avatars.png'),
+              // source: Image.asset('assets/dash_avatars.png'),
               // source: Image.asset('assets/dash_fainting.gif'),
               // source: VideoApp(),
               children: [
-                WidgetPuzzleTilePosition(
+                PuzzleTilePosition(
                   column: 0,
                   row: 0,
                   child: WidgetTile(index: 2, link: link),
                 ),
-                WidgetPuzzleTilePosition(
+                PuzzleTilePosition(
                   column: 1,
                   row: 0,
                   child: WidgetTile(index: 1, link: link),
                 ),
-                WidgetPuzzleTilePosition(
+                PuzzleTilePosition(
                   column: 0,
                   row: 1,
                   child: WidgetTile(index: 3, link: link),
                 ),
-                WidgetPuzzleTilePosition(
+                PuzzleTilePosition(
                   column: 1,
                   row: 1,
                   child: WidgetTile(index: 0, link: link),
@@ -199,8 +198,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   PuzzleController controller = PuzzleController(
-    columns: 3,
-    rows: 3,
+    columns: 2,
+    rows: 2,
   )..shuffle();
 
   @override
@@ -257,8 +256,18 @@ class MyHomePage extends StatelessWidget {
                             );
                           },
                         ),
-                        delegate: const ImageSlidingPuzzleDelegate(
-                          imagePath: 'assets/dash_fainting.gif',
+                        // delegate: const ImageSlidingPuzzleDelegate(
+                        //   imagePath: 'assets/dash_fainting.gif',
+                        // ),
+                        delegate: WidgetSlidingPuzzleDelegate(
+                          // source: SizedBox.expand(
+                          //   child: ColoredBox(
+                          //     color: Colors.amber,
+                          //     child: FlutterLogo(),
+                          //   ),
+                          // ),
+                          // source: Image.asset('assets/dash_fainting.gif'),
+                          source: Image.asset('assets/dash_fainting.gif'),
                         ),
                       );
                     },
