@@ -2,12 +2,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_board/render_puzzle_board.dart';
 
-typedef _Painter = ClipRectLayer? Function(
+typedef _Painter = void Function(
   PaintingContext context,
-  bool needsCompositing,
   Offset offset,
   int index,
-  ContainerLayer? oldLayer,
 );
 
 class WidgetPuzzleBoardLink {
@@ -153,12 +151,10 @@ class RenderWidgetPuzzleBoard extends RenderBox
     return defaultHitTestChildren(result, position: position);
   }
 
-  ClipRectLayer? _pushPermutationLayer(
+  void _pushPermutationLayer(
     PaintingContext context,
-    bool needsCompositing,
     Offset offset,
     int index,
-    ContainerLayer? oldLayer,
   ) {
     final column = index % _columns;
     final row = index ~/ _columns;
@@ -168,17 +164,22 @@ class RenderWidgetPuzzleBoard extends RenderBox
       column * (_childWidth + _columnSpacing),
       row * (_childHeight + _rowSpacing),
     );
-
-    layer = context.pushClipRect(
-      // Should be true only with RepaintBoundaries ?
-      true,
-      offset,
-      _childClipRect,
-      (context, offset) {
-        context.paintChild(source, offset - sourceOffset);
-      },
-      oldLayer: layer as ClipRectLayer?,
-    );
+    // layer = context.pushClipRect(
+    //   // Should be true only with RepaintBoundaries ?
+    //   false,
+    //   offset,
+    //   _childClipRect,
+    //   (context, offset) {
+    //     context.paintChild(source, offset - sourceOffset);
+    //   },
+    //   oldLayer: layer as ClipRectLayer?,
+    // );
+    context.clipRectAndPaint(
+        Rect.fromLTWH(offset.dx, offset.dy, _childWidth, _childHeight),
+        Clip.hardEdge,
+        Rect.largest, () {
+      context.paintChild(source, offset - sourceOffset);
+    });
   }
 
   @override
@@ -187,6 +188,9 @@ class RenderWidgetPuzzleBoard extends RenderBox
     while (child != null) {
       final childParentData = child.parentData! as PuzzleBoardParentData;
       context.paintChild(child, childParentData.offset + offset);
+      context.canvas.saveLayer(Rect.largest, Paint());
+      context.canvas.restore();
+      context.canvas.restore();
       child = childParentData.nextSibling;
     }
   }

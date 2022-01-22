@@ -42,6 +42,6 @@ class RenderWidgetTile extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    layer = _link.paint!(context, needsCompositing, offset, index, layer);
+    _link.paint!(context, offset, index);
   }
 }
