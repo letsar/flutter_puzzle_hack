@@ -7,7 +7,7 @@ class WidgetPuzzleBoard extends MultiChildRenderObjectWidget {
     required this.columns,
     required this.rows,
     this.columnSpacing = 0,
-    required this.painter,
+    required this.link,
     required Widget source,
     required List<Widget> children,
   }) : super(key: key, children: [source, ...children]);
@@ -15,7 +15,7 @@ class WidgetPuzzleBoard extends MultiChildRenderObjectWidget {
   final int columns;
   final int rows;
   final double columnSpacing;
-  final WidgetPuzzleBoardPainter painter;
+  final WidgetPuzzleBoardLink link;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -23,7 +23,7 @@ class WidgetPuzzleBoard extends MultiChildRenderObjectWidget {
       columns: columns,
       rows: rows,
       columnSpacing: columnSpacing,
-      painter: painter,
+      link: link,
     );
   }
 
@@ -36,6 +36,6 @@ class WidgetPuzzleBoard extends MultiChildRenderObjectWidget {
       ..columns = columns
       ..rows = rows
       ..columnSpacing = columnSpacing
-      ..painter = painter;
+      ..link = link;
   }
 }

@@ -6,9 +6,9 @@ class RenderWidgetTile extends RenderBox
   RenderWidgetTile({
     RenderBox? child,
     required int index,
-    required WidgetPuzzleBoardPainter painter,
+    required WidgetPuzzleBoardLink link,
   })  : _index = index,
-        _painter = painter {
+        _link = link {
     this.child = child;
   }
 
@@ -22,13 +22,13 @@ class RenderWidgetTile extends RenderBox
     markNeedsPaint();
   }
 
-  WidgetPuzzleBoardPainter get painter => _painter;
-  WidgetPuzzleBoardPainter _painter;
-  set painter(WidgetPuzzleBoardPainter value) {
-    if (_painter == value) {
+  WidgetPuzzleBoardLink get link => _link;
+  WidgetPuzzleBoardLink _link;
+  set link(WidgetPuzzleBoardLink value) {
+    if (_link == value) {
       return;
     }
-    _painter = value;
+    _link = value;
     markNeedsLayout();
   }
 
@@ -42,6 +42,6 @@ class RenderWidgetTile extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    layer = _painter.paint!(context, offset, index, layer);
+    layer = _link.paint!(context, needsCompositing, offset, index, layer);
   }
 }

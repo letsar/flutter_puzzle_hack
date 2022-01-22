@@ -6,17 +6,17 @@ class WidgetTile extends LeafRenderObjectWidget {
   const WidgetTile({
     Key? key,
     required this.index,
-    required this.painter,
+    required this.link,
   }) : super(key: key);
 
   final int index;
-  final WidgetPuzzleBoardPainter painter;
+  final WidgetPuzzleBoardLink link;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
     return RenderWidgetTile(
       index: index,
-      painter: painter,
+      link: link,
     );
   }
 
@@ -24,6 +24,6 @@ class WidgetTile extends LeafRenderObjectWidget {
   void updateRenderObject(BuildContext context, RenderWidgetTile renderObject) {
     renderObject
       ..index = index
-      ..painter = painter;
+      ..link = link;
   }
 }

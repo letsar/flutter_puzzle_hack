@@ -3,12 +3,13 @@ import 'package:flutter/widgets.dart';
 
 typedef _Painter = ClipRectLayer? Function(
   PaintingContext context,
+  bool needsCompositing,
   Offset offset,
   int index,
   ContainerLayer? oldLayer,
 );
 
-class WidgetPuzzleBoardPainter {
+class WidgetPuzzleBoardLink {
   _Painter? _paint;
   _Painter? get paint => _paint;
 }
@@ -27,14 +28,14 @@ class RenderWidgetPuzzleBoard extends RenderBox
     List<RenderBox>? children,
     required int columns,
     required int rows,
-    required WidgetPuzzleBoardPainter painter,
+    required WidgetPuzzleBoardLink link,
     double columnSpacing = 0,
   })  : _columns = columns,
         _rows = rows,
         _columnSpacing = columnSpacing,
-        _painter = painter {
+        _link = link {
     addAll(children);
-    _painter._paint = _pushPermutationLayer;
+    _link._paint = _pushPermutationLayer;
   }
 
   int get columns => _columns;
@@ -67,15 +68,15 @@ class RenderWidgetPuzzleBoard extends RenderBox
     markNeedsLayout();
   }
 
-  WidgetPuzzleBoardPainter get painter => _painter;
-  WidgetPuzzleBoardPainter _painter;
-  set painter(WidgetPuzzleBoardPainter value) {
-    if (_painter == value) {
+  WidgetPuzzleBoardLink get link => _link;
+  WidgetPuzzleBoardLink _link;
+  set link(WidgetPuzzleBoardLink value) {
+    if (_link == value) {
       return;
     }
-    _painter._paint = null;
-    _painter = value;
-    _painter._paint = _pushPermutationLayer;
+    _link._paint = null;
+    _link = value;
+    _link._paint = _pushPermutationLayer;
     markNeedsPaint();
   }
 
@@ -105,14 +106,22 @@ class RenderWidgetPuzzleBoard extends RenderBox
     _sourceSize = source.size;
     size = constraints.constrain(_sourceSize);
 
-    _rowSpacing = _columnSpacing / _sourceSize.aspectRatio;
-    _childWidth =
-        (_sourceSize.width - _columnSpacing * (columns - 1)) / _columns;
-    _childHeight = (_sourceSize.height - _rowSpacing * (rows - 1)) / _rows;
-    final childConstraints = BoxConstraints.tightFor(
-      width: _childWidth,
-      height: _childHeight,
-    );
+    final BoxConstraints childConstraints;
+    if (size == Size.zero) {
+      _childWidth = 0;
+      _childHeight = 0;
+      _rowSpacing = 0;
+      childConstraints = BoxConstraints.tight(Size.zero);
+    } else {
+      _rowSpacing = _columnSpacing / _sourceSize.aspectRatio;
+      _childWidth =
+          (_sourceSize.width - _columnSpacing * (columns - 1)) / _columns;
+      _childHeight = (_sourceSize.height - _rowSpacing * (rows - 1)) / _rows;
+      childConstraints = BoxConstraints.tightFor(
+        width: _childWidth,
+        height: _childHeight,
+      );
+    }
 
     visitTileChildren((child) {
       child.layout(childConstraints);
@@ -143,6 +152,7 @@ class RenderWidgetPuzzleBoard extends RenderBox
 
   ClipRectLayer? _pushPermutationLayer(
     PaintingContext context,
+    bool needsCompositing,
     Offset offset,
     int index,
     ContainerLayer? oldLayer,
@@ -156,8 +166,11 @@ class RenderWidgetPuzzleBoard extends RenderBox
       row * (_childHeight + _rowSpacing),
     );
 
+    final effectiveSourceOffet = offset - sourceOffset;
+    print('RRL i:$index, effectiveSourceOffet:$effectiveSourceOffet');
+    // context.paintChild(source, offset - sourceOffset);
     layer = context.pushClipRect(
-      needsCompositing,
+      this.needsCompositing,
       offset,
       Rect.fromLTWH(
         0,

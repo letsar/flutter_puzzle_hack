@@ -25,42 +25,58 @@ class MyWidgetApp extends StatefulWidget {
 }
 
 class _MyWidgetAppState extends State<MyWidgetApp> {
-  final painter = WidgetPuzzleBoardPainter();
+  final link = WidgetPuzzleBoardLink();
 
   @override
   Widget build(BuildContext context) {
+    // return MaterialApp(
+    //   home: Scaffold(
+    //       body: Center(
+    //     child: SizedBox(
+    //         height: 500, width: 200, child: const MyTemplateHomePage()),
+    //   )),
+    // );
+
     return MaterialApp(
       home: Scaffold(
         body: Center(
-          child: AspectRatio(
-            aspectRatio: 1,
+          child: ColoredBox(
+            color: Colors.red,
             child: WidgetPuzzleBoard(
               rows: 2,
               columns: 2,
               columnSpacing: 0,
-              painter: painter,
-              source: Image.asset('assets/dash_fainting.gif'),
+              link: link,
+              // source: RepaintBoundary(
+              //   child: const MyTemplateHomePage(),
+              // ),
+              // source: RepaintBoundary(
+              //   child: Image.asset('assets/dash_avatars.png'),
+              // ),
+
+              source: Image.asset('assets/dash_avatars.png'),
+              // source: Image.asset('assets/dash_fainting.gif'),
               // source: VideoApp(),
               children: [
                 WidgetPuzzleTilePosition(
                   column: 0,
                   row: 0,
-                  child: WidgetTile(index: 2, painter: painter),
+                  child: WidgetTile(index: 2, link: link),
                 ),
                 WidgetPuzzleTilePosition(
                   column: 1,
                   row: 0,
-                  child: WidgetTile(index: 1, painter: painter),
+                  child: WidgetTile(index: 1, link: link),
                 ),
                 WidgetPuzzleTilePosition(
                   column: 0,
                   row: 1,
-                  child: WidgetTile(index: 3, painter: painter),
+                  child: WidgetTile(index: 3, link: link),
                 ),
                 WidgetPuzzleTilePosition(
                   column: 1,
                   row: 1,
-                  child: WidgetTile(index: 0, painter: painter),
+                  child: WidgetTile(index: 0, link: link),
                 ),
               ],
             ),
@@ -521,5 +537,50 @@ extension on BuildContext {
 
   T readExactType<T extends InheritedWidget>() {
     return getElementForInheritedWidgetOfExactType<T>()!.widget as T;
+  }
+}
+
+class MyTemplateHomePage extends StatefulWidget {
+  const MyTemplateHomePage({Key? key}) : super(key: key);
+
+  @override
+  State<MyTemplateHomePage> createState() => _MyTemplateHomePageState();
+}
+
+class _MyTemplateHomePageState extends State<MyTemplateHomePage> {
+  int _counter = 0;
+
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Flutter Demo Home Page'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Text(
+              'You have pushed the button this many times:',
+            ),
+            Text(
+              '$_counter',
+              style: Theme.of(context).textTheme.headline4,
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ),
+    );
   }
 }
