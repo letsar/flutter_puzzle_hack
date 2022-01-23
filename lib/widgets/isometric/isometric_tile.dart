@@ -79,7 +79,6 @@ class RenderIsometricTile extends RenderBox {
 
   @override
   bool hitTestSelf(Offset position) {
-    return true;
     final width = size.width;
     final height = size.height;
     final halfWidth = width / 2;
@@ -88,16 +87,20 @@ class RenderIsometricTile extends RenderBox {
     final h = size.aspectRatio > 2 ? halfHeight : width / 4;
     final w = halfWidth;
 
-    return !_isAboveLine(Offset(0, h), Offset(w, 0), position) &&
-        !_isAboveLine(Offset(w, 0), Offset(width, h), position) &&
-        _isAboveLine(Offset(0, height - h), Offset(w, height), position) &&
-        _isAboveLine(Offset(w, height - h), Offset(w, height), position);
+    final a = _sign(Offset(0, h), Offset(w, 0), position) == 1;
+    final b = _sign(Offset(w, 0), Offset(width, h), position) == 1;
+    final c = _sign(Offset(0, height - h), Offset(w, height), position) == -1;
+    final d =
+        _sign(Offset(width, height - h), Offset(w, height), position) == 1;
+
+    final result = a && b && c && d;
+    return result;
   }
 
-  bool _isAboveLine(Offset a, Offset b, Offset position) {
+  double _sign(Offset a, Offset b, Offset position) {
     return ((b.dx - a.dx) * (position.dy - a.dy) -
-            (b.dy - a.dy) * (position.dx - a.dx)) >
-        0;
+            (b.dy - a.dy) * (position.dx - a.dx))
+        .sign;
   }
 
   @override

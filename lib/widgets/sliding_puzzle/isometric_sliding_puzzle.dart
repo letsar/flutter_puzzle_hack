@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_puzzle_hack/widgets/isometric/custom_mouse_region.dart';
 import 'package:flutter_puzzle_hack/widgets/isometric/isometric_puzzle_board.dart';
 import 'package:flutter_puzzle_hack/widgets/isometric/isometric_tile.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/sliding_puzzle.dart';
@@ -55,17 +56,37 @@ class _IsometricSlidingPuzzleState extends State<IsometricSlidingPuzzle> {
   }
 }
 
-class Iso01 extends StatelessWidget {
+class Iso01 extends StatefulWidget {
   const Iso01({
     Key? key,
   }) : super(key: key);
 
   @override
+  State<Iso01> createState() => _Iso01State();
+}
+
+class _Iso01State extends State<Iso01> {
+  Color top = const Color(0xFF2FE7C5);
+
+  @override
   Widget build(BuildContext context) {
-    return const IsometricTile(
-      top: Color(0xFF2FE7C5),
-      left: Color(0xFF925538),
-      right: Color(0xFFEB885A),
+    return CustomMouseRegion(
+      onEnter: (_) {
+        setState(() {
+          top = const Color(0xFFA4F4E6);
+        });
+      },
+      onExit: (_) {
+        setState(() {
+          top = const Color(0xFF2FE7C5);
+        });
+      },
+      onHover: (_) {},
+      child: IsometricTile(
+        top: top,
+        left: const Color(0xFF925538),
+        right: const Color(0xFFEB885A),
+      ),
     );
   }
 }
