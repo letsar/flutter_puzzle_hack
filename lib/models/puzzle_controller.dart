@@ -1,8 +1,10 @@
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_puzzle_hack/generator/game_generator.dart';
 import 'package:flutter_puzzle_hack/models/puzzle.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
+import 'package:flutter_puzzle_hack/models/timer_notifier.dart';
 
 class PuzzleController extends ChangeNotifier {
   PuzzleController({
@@ -25,6 +27,7 @@ class PuzzleController extends ChangeNotifier {
         tiles = _createTiles(puzzle.tiles),
         columns = ValueNotifier<int>(puzzle.columns),
         rows = ValueNotifier<int>(puzzle.rows),
+        timer = TimerNotifier(),
         _random = Random() {
     columns.addListener(_handleDimensionsChanged);
     rows.addListener(_handleDimensionsChanged);
@@ -41,6 +44,7 @@ class PuzzleController extends ChangeNotifier {
   final ValueNotifier<int> moveCount;
   final ValueNotifier<int> columns;
   final ValueNotifier<int> rows;
+  final TimerNotifier timer;
 
   void _handleDimensionsChanged() {
     final length = tiles.length;
@@ -80,6 +84,7 @@ class PuzzleController extends ChangeNotifier {
 
   void moveTiles(Tile tile) {
     _puzzle = _puzzle.moveTiles(tile.currentIndex);
+    timer.startIfInactive();
     update();
   }
 
@@ -87,6 +92,9 @@ class PuzzleController extends ChangeNotifier {
     isSolved.value = _puzzle.isComplete();
     tilesLeft.value = _puzzle.tilesLeft;
     moveCount.value++;
+    if (isSolved.value) {
+      timer.stop();
+    }
   }
 
   void shuffle() {
@@ -106,8 +114,20 @@ class PuzzleController extends ChangeNotifier {
         newPuzzle.getEmptyTileCurrentIndex() > 1 || !newPuzzle.isSolvable());
 
     _puzzle = newPuzzle;
+    reset();
+  }
+
+  void reset() {
+    timer.reset();
     moveCount.value = -1;
     update();
+  }
+
+  void generateForToday() {
+    const generator = GameGenerator();
+    final newPuzzle = generator.generateForToday();
+    _puzzle = newPuzzle;
+    reset();
   }
 
   void update() {

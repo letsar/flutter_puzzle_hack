@@ -3,14 +3,93 @@ import 'package:flutter_puzzle_hack/extensions/build_context.dart';
 import 'package:flutter_puzzle_hack/models/notifiers.dart';
 import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
+import 'package:flutter_puzzle_hack/widgets/isometric/isometric_puzzle_board.dart';
+import 'package:flutter_puzzle_hack/widgets/isometric/isometric_tile.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_board/puzzle_tile_position.dart';
-import 'package:flutter_puzzle_hack/widgets/puzzles/number_of_moves.dart';
+import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/isometric_sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/sliding_puzzle.dart';
-import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/widget_sliding_puzzle.dart';
 
 void main() {
   // runApp(const MyWidgetApp());
+  // runApp(const IsometricApp());
   runApp(const MyApp());
+}
+
+class IsometricApp extends StatelessWidget {
+  const IsometricApp({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: AspectRatio(
+              aspectRatio: 1.6,
+              child: Container(
+                color: Colors.red,
+                child: const IsoBoard(
+                  columns: 4,
+                  rows: 4,
+                  spacing: 8,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class IsoBoard extends StatelessWidget {
+  const IsoBoard({
+    Key? key,
+    required this.columns,
+    required this.rows,
+    this.spacing = 0,
+  }) : super(key: key);
+
+  final int columns;
+  final int rows;
+  final double spacing;
+
+  @override
+  Widget build(BuildContext context) {
+    return IsometricPuzzleBoard(
+      columns: columns,
+      rows: rows,
+      spacing: spacing,
+      children: List.generate(
+        columns * rows,
+        (index) {
+          return PuzzleTilePosition(
+            column: (index % columns).toDouble(),
+            row: (index ~/ columns).toDouble(),
+            child: const Iso01(),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class Iso01 extends StatelessWidget {
+  const Iso01({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const IsometricTile(
+      top: Color(0xFF2FE7C5),
+      left: Color(0xFF925538),
+      right: Color(0xFFEB885A),
+    );
+  }
 }
 
 class MyApp extends StatefulWidget {
@@ -22,8 +101,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   PuzzleController controller = PuzzleController(
-    columns: 2,
-    rows: 2,
+    columns: 3,
+    rows: 3,
   )..shuffle();
 
   @override
@@ -58,6 +137,7 @@ class MyHomePage extends StatelessWidget {
           children: [
             const NumberOfMoves(),
             const TilesLeft(),
+            const ElapsedTime(),
             Expanded(
               child: Center(
                 child: Padding(
@@ -80,25 +160,26 @@ class MyHomePage extends StatelessWidget {
                             );
                           },
                         ),
-                        delegate: WidgetSlidingPuzzleDelegate(
-                          // source: SizedBox.expand(
-                          //   child: ColoredBox(
-                          //     color: Colors.amber,
-                          //     // child: MyTemplateHomePage(),
-                          //     child: Center(
-                          //       child: Padding(
-                          //         padding: const EdgeInsets.all(8.0),
-                          //         child: AspectRatio(
-                          //           aspectRatio: 1,
-                          //           child: CircularProgressIndicator(),
-                          //         ),
-                          //       ),
-                          //     ),
-                          //   ),
-                          // ),
-                          // source: const FlutterTemplatePuzzle(),
-                          source: const NumberOfMovesPuzzle(),
-                        ),
+                        // delegate: WidgetSlidingPuzzleDelegate(
+                        //   // source: SizedBox.expand(
+                        //   //   child: ColoredBox(
+                        //   //     color: Colors.amber,
+                        //   //     // child: MyTemplateHomePage(),
+                        //   //     child: Center(
+                        //   //       child: Padding(
+                        //   //         padding: const EdgeInsets.all(8.0),
+                        //   //         child: AspectRatio(
+                        //   //           aspectRatio: 1,
+                        //   //           child: CircularProgressIndicator(),
+                        //   //         ),
+                        //   //       ),
+                        //   //     ),
+                        //   //   ),
+                        //   // ),
+                        //   // source: const FlutterTemplatePuzzle(),
+                        //   source: const FlutterLogoPuzzle(),
+                        // ),
+                        delegate: IsometricSlidingPuzzleDelegate(),
                       );
                     },
                   ),
@@ -183,7 +264,8 @@ class AnimatedTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watchValue<PuzzleController>();
-    final effectiveChild = controller.isEmptyTile(tile)
+    final isEmptyTile = controller.isEmptyTile(tile);
+    final effectiveChild = isEmptyTile
         ? PuzzleEmptyTile(
             tile: tile,
             child: child,
@@ -196,6 +278,7 @@ class AnimatedTile extends StatelessWidget {
         return PuzzleTile(
           tile: tile,
           child: child!,
+          ignorePointer: isEmptyTile,
         );
       },
       child: effectiveChild,
@@ -216,6 +299,27 @@ class NumberOfMoves extends StatelessWidget {
       builder: (context, numberOfMoves, child) {
         return Text(
           'Number of moves: $numberOfMoves',
+          style: Theme.of(context).textTheme.headline6,
+        );
+      },
+    );
+  }
+}
+
+class ElapsedTime extends StatelessWidget {
+  const ElapsedTime({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watchValue<PuzzleController>();
+    final timer = controller.timer;
+    return AnimatedBuilder(
+      animation: timer,
+      builder: (context, child) {
+        return Text(
+          'Elapsed seconds: ${timer.seconds}',
           style: Theme.of(context).textTheme.headline6,
         );
       },
@@ -277,10 +381,12 @@ class PuzzleTile extends StatefulWidget {
     Key? key,
     required this.tile,
     required this.child,
+    this.ignorePointer = false,
   }) : super(key: key);
 
   final Tile tile;
   final Widget child;
+  final bool ignorePointer;
 
   @override
   State<PuzzleTile> createState() => _PuzzleTileState();
@@ -301,20 +407,23 @@ class _PuzzleTileState extends State<PuzzleTile> {
       duration: const Duration(milliseconds: 300),
       curve: const ElasticOutCurve(1),
       onEnd: handleAnimationEnded,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(4),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          // behavior: HitTestBehavior.opaque,
-          onTap: () {
-            if (controller.isTileMovable(widget.tile)) {
-              tapped = true;
-              controller.moveTiles(widget.tile);
-            }
-          },
-          child: widget.child,
+      child: IgnorePointer(
+        ignoring: widget.ignorePointer,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: GestureDetector(
+            onTap: () {
+              if (controller.isTileMovable(widget.tile)) {
+                tapped = true;
+                controller.moveTiles(widget.tile);
+              }
+            },
+            child: widget.child,
+          ),
         ),
       ),
     );
