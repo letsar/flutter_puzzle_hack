@@ -84,23 +84,35 @@ class RenderIsometricTile extends RenderBox {
     final halfWidth = width / 2;
     final halfHeight = height / 2;
 
-    final h = size.aspectRatio > 2 ? halfHeight : width / 4;
-    final w = halfWidth;
+    final Path path;
+    if (size.aspectRatio > 2) {
+      path = Path()
+        ..addPolygon(
+          [
+            Offset(0, halfHeight),
+            Offset(halfWidth, 0),
+            Offset(width, halfHeight),
+            Offset(halfWidth, height),
+          ],
+          true,
+        );
+    } else {
+      final quarterWidth = width / 4;
+      path = Path()
+        ..addPolygon(
+          [
+            Offset(0, quarterWidth),
+            Offset(halfWidth, 0),
+            Offset(width, quarterWidth),
+            Offset(width, height - quarterWidth),
+            Offset(halfWidth, height),
+            Offset(0, height - quarterWidth),
+          ],
+          true,
+        );
+    }
 
-    final a = _sign(Offset(0, h), Offset(w, 0), position) == 1;
-    final b = _sign(Offset(w, 0), Offset(width, h), position) == 1;
-    final c = _sign(Offset(0, height - h), Offset(w, height), position) == -1;
-    final d =
-        _sign(Offset(width, height - h), Offset(w, height), position) == 1;
-
-    final result = a && b && c && d;
-    return result;
-  }
-
-  double _sign(Offset a, Offset b, Offset position) {
-    return ((b.dx - a.dx) * (position.dy - a.dy) -
-            (b.dy - a.dy) * (position.dx - a.dx))
-        .sign;
+    return path.contains(position);
   }
 
   @override

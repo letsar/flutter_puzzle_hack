@@ -65,27 +65,57 @@ class Iso01 extends StatefulWidget {
   State<Iso01> createState() => _Iso01State();
 }
 
-class _Iso01State extends State<Iso01> {
+class _Iso01State extends State<Iso01> with SingleTickerProviderStateMixin {
   Color top = const Color(0xFF2FE7C5);
+  bool isHover = false;
+
+  late final controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 500),
+  );
+  late final position = controller.drive(
+    Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(0, -0.1),
+    ),
+  );
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> start() async {
+    await controller.forward();
+    await controller.reverse();
+    if (isHover) {
+      start();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return CustomMouseRegion(
       onEnter: (_) {
-        setState(() {
-          top = const Color(0xFFA4F4E6);
-        });
+        isHover = true;
+        // controller.repeat(reverse: true);
+        if (!controller.isAnimating) {
+          start();
+        }
       },
       onExit: (_) {
-        setState(() {
-          top = const Color(0xFF2FE7C5);
-        });
+        isHover = false;
+        // controller.animateBack(0);
       },
       onHover: (_) {},
-      child: IsometricTile(
-        top: top,
-        left: const Color(0xFF925538),
-        right: const Color(0xFFEB885A),
+      child: SlideTransition(
+        position: position,
+        child: IsometricTile(
+          top: top,
+          left: const Color(0xFF925538),
+          right: const Color(0xFFEB885A),
+        ),
       ),
     );
   }

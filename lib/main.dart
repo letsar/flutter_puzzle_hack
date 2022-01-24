@@ -409,21 +409,14 @@ class _PuzzleTileState extends State<PuzzleTile> {
       onEnd: handleAnimationEnded,
       child: IgnorePointer(
         ignoring: widget.ignorePointer,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(4),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: GestureDetector(
-            onTap: () {
-              if (controller.isTileMovable(widget.tile)) {
-                tapped = true;
-                controller.moveTiles(widget.tile);
-              }
-            },
-            child: widget.child,
-          ),
+        child: GestureDetector(
+          onTap: () {
+            if (controller.isTileMovable(widget.tile)) {
+              tapped = true;
+              controller.moveTiles(widget.tile);
+            }
+          },
+          child: widget.child,
         ),
       ),
     );
@@ -434,5 +427,34 @@ class _PuzzleTileState extends State<PuzzleTile> {
       tapped = false;
       // context.readValue<PuzzleController>().updateState();
     }
+  }
+}
+
+class MyShapeBorder extends ShapeBorder {
+  @override
+  // TODO: implement dimensions
+  EdgeInsetsGeometry get dimensions => throw UnimplementedError();
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) {
+    // TODO: implement getInnerPath
+    throw UnimplementedError();
+  }
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    // TODO: implement getOuterPath
+    throw UnimplementedError();
+  }
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    // TODO: implement paint
+  }
+
+  @override
+  ShapeBorder scale(double t) {
+    // TODO: implement scale
+    throw UnimplementedError();
   }
 }
