@@ -71,14 +71,16 @@ class _Iso01State extends State<Iso01> with SingleTickerProviderStateMixin {
 
   late final controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 500),
+    duration: const Duration(milliseconds: 300),
   );
-  late final position = controller.drive(
-    Tween<Offset>(
-      begin: Offset.zero,
-      end: const Offset(0, -0.1),
-    ),
-  );
+  late final position = CurvedAnimation(
+    parent: controller,
+    curve: Curves.easeOut,
+    reverseCurve: Curves.easeOut.flipped,
+  ).drive(Tween<Offset>(
+    begin: Offset.zero,
+    end: const Offset(0, -0.1),
+  ));
 
   @override
   void dispose() {
@@ -88,7 +90,7 @@ class _Iso01State extends State<Iso01> with SingleTickerProviderStateMixin {
 
   Future<void> start() async {
     await controller.forward();
-    await controller.reverse();
+    await controller.animateBack(0);
     if (isHover) {
       start();
     }
@@ -99,14 +101,12 @@ class _Iso01State extends State<Iso01> with SingleTickerProviderStateMixin {
     return CustomMouseRegion(
       onEnter: (_) {
         isHover = true;
-        // controller.repeat(reverse: true);
         if (!controller.isAnimating) {
           start();
         }
       },
       onExit: (_) {
         isHover = false;
-        // controller.animateBack(0);
       },
       onHover: (_) {},
       child: SlideTransition(
