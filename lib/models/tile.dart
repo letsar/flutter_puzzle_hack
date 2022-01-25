@@ -17,6 +17,8 @@ class Tile with ChangeNotifier {
     }
   }
 
+  bool get isCorrect => _currentIndex == correctIndex;
+
   @override
   String toString() {
     return 'value ($correctIndex) is at $currentIndex';

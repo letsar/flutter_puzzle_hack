@@ -106,6 +106,12 @@ class _MyAppState extends State<MyApp> {
   )..shuffle();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
@@ -427,34 +433,5 @@ class _PuzzleTileState extends State<PuzzleTile> {
       tapped = false;
       // context.readValue<PuzzleController>().updateState();
     }
-  }
-}
-
-class MyShapeBorder extends ShapeBorder {
-  @override
-  // TODO: implement dimensions
-  EdgeInsetsGeometry get dimensions => throw UnimplementedError();
-
-  @override
-  Path getInnerPath(Rect rect, {TextDirection? textDirection}) {
-    // TODO: implement getInnerPath
-    throw UnimplementedError();
-  }
-
-  @override
-  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
-    // TODO: implement getOuterPath
-    throw UnimplementedError();
-  }
-
-  @override
-  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
-    // TODO: implement paint
-  }
-
-  @override
-  ShapeBorder scale(double t) {
-    // TODO: implement scale
-    throw UnimplementedError();
   }
 }

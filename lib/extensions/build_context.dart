@@ -3,11 +3,11 @@ import 'package:flutter_puzzle_hack/models/notifiers.dart';
 
 extension BuildContextExtensions on BuildContext {
   T watchValue<T>() {
-    return watchExactType<ValueProvider<T>>().value!;
+    return watchExactType<ValueProvider<T>>().value;
   }
 
   T readValue<T>() {
-    return readExactType<ValueProvider<T>>().value!;
+    return readExactType<ValueProvider<T>>().value;
   }
 
   T watchNotifier<T extends Listenable>() {

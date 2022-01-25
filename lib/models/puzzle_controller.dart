@@ -27,6 +27,7 @@ class PuzzleController extends ChangeNotifier {
         tiles = _createTiles(puzzle.tiles),
         columns = ValueNotifier<int>(puzzle.columns),
         rows = ValueNotifier<int>(puzzle.rows),
+        id = ValueNotifier<int>(0),
         timer = TimerNotifier(),
         _random = Random() {
     columns.addListener(_handleDimensionsChanged);
@@ -44,6 +45,7 @@ class PuzzleController extends ChangeNotifier {
   final ValueNotifier<int> moveCount;
   final ValueNotifier<int> columns;
   final ValueNotifier<int> rows;
+  final ValueNotifier<int> id;
   final TimerNotifier timer;
 
   void _handleDimensionsChanged() {
@@ -120,6 +122,7 @@ class PuzzleController extends ChangeNotifier {
   void reset() {
     timer.reset();
     moveCount.value = -1;
+    id.value++;
     update();
   }
 
