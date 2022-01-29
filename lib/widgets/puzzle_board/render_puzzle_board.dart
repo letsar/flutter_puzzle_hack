@@ -1,14 +1,14 @@
 import 'package:flutter/rendering.dart';
 
-class PuzzleBoardParentData extends ContainerBoxParentData<RenderBox> {
+class BoardParentData extends ContainerBoxParentData<RenderBox> {
   double? row;
   double? column;
 }
 
 class RenderPuzzleBoard extends RenderBox
     with
-        ContainerRenderObjectMixin<RenderBox, PuzzleBoardParentData>,
-        RenderBoxContainerDefaultsMixin<RenderBox, PuzzleBoardParentData> {
+        ContainerRenderObjectMixin<RenderBox, BoardParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, BoardParentData> {
   RenderPuzzleBoard({
     List<RenderBox>? children,
     required int columns,
@@ -52,8 +52,8 @@ class RenderPuzzleBoard extends RenderBox
 
   @override
   void setupParentData(covariant RenderObject child) {
-    if (child.parentData is! PuzzleBoardParentData) {
-      child.parentData = PuzzleBoardParentData();
+    if (child.parentData is! BoardParentData) {
+      child.parentData = BoardParentData();
     }
   }
 
@@ -79,7 +79,7 @@ class RenderPuzzleBoard extends RenderBox
 
     visitChildren((child) {
       child.layout(childConstraints);
-      final childParentData = child.parentData as PuzzleBoardParentData;
+      final childParentData = child.parentData as BoardParentData;
       final row = childParentData.row!;
       final column = childParentData.column!;
       childParentData.offset = Offset(

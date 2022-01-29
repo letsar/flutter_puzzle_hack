@@ -146,6 +146,22 @@ class RenderIsometricTile extends RenderBox {
       );
     } else {
       final quarterWidth = width / 4;
+
+      // We color the whole cube in the background with otherwise we can have
+      // some holes.
+      paint.color = _left;
+      drawPolygon(
+        [
+          Offset(0, quarterWidth),
+          Offset(halfWidth, 0),
+          Offset(width, quarterWidth),
+          Offset(width, height - quarterWidth),
+          Offset(halfWidth, height),
+          Offset(0, height - quarterWidth),
+        ],
+      );
+
+      paint.color = _top;
       drawPolygon(
         [
           Offset(0, quarterWidth),

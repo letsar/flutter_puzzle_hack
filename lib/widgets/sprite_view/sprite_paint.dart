@@ -8,10 +8,12 @@ class SpritePaint extends StatelessWidget {
     Key? key,
     required this.tile,
     required this.count,
+    required this.max,
   }) : super(key: key);
 
   final Rect tile;
   final int count;
+  final int max;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +28,7 @@ class SpritePaint extends StatelessWidget {
         tileSet: tileSet,
         tile: tile,
         count: count,
+        max: max,
       ),
     );
   }
@@ -43,16 +46,30 @@ const _relativeOffsets = <Offset>[
   Offset(3 / 6, 5 / 6),
 ];
 
+const _indexes = [
+  [4],
+  [2, 6],
+  [2, 6, 4],
+  [0, 2, 6, 8],
+  [0, 2, 6, 8, 4],
+  [0, 1, 2, 6, 7, 8],
+  [0, 1, 2, 6, 7, 8, 4],
+  [0, 1, 2, 6, 7, 8, 4, 3],
+  [0, 1, 2, 6, 7, 8, 4, 3, 5],
+];
+
 class SpritePainter extends CustomPainter {
   const SpritePainter({
     required this.tileSet,
     required this.tile,
     required this.count,
+    required this.max,
   });
 
   final ui.Image tileSet;
   final Rect tile;
   final int count;
+  final int max;
 
   @override
   bool? hitTest(ui.Offset position) {
@@ -68,13 +85,14 @@ class SpritePainter extends CustomPainter {
 
     final scale = (width / 6) / tile.width;
     final effectiveCount = count.clamp(0, 9);
+    final indexes = _indexes[max - 1].take(effectiveCount).toList()..sort();
 
     canvas.drawAtlas(
       tileSet,
       List.generate(
         effectiveCount,
         (index) {
-          final offset = _relativeOffsets[index];
+          final offset = _relativeOffsets[indexes[index]];
           final x = offset.dx * w;
           final y = offset.dy * h;
           return RSTransform.fromComponents(

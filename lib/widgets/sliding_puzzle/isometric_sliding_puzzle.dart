@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
 import 'package:flutter_puzzle_hack/widgets/isometric/custom_mouse_region.dart';
-import 'package:flutter_puzzle_hack/widgets/isometric/isometric_puzzle_board.dart';
+import 'package:flutter_puzzle_hack/widgets/isometric/isometric_board.dart';
 import 'package:flutter_puzzle_hack/widgets/isometric/isometric_tile.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_controller_builder/puzzle_controller_builder.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/sliding_puzzle.dart';
@@ -42,8 +42,8 @@ class _IsometricSlidingPuzzleState extends State<IsometricSlidingPuzzle> {
     return TilesetProvider(
       tileSet: 'assets/tileset.png',
       child: AspectRatio(
-        aspectRatio: 1.6,
-        child: IsometricPuzzleBoard(
+        aspectRatio: 1.5,
+        child: IsometricBoard(
           columns: config.columns,
           rows: config.rows,
           spacing: 8,
@@ -66,15 +66,20 @@ class _IsometricSlidingPuzzleState extends State<IsometricSlidingPuzzle> {
 
 const _tileRects = [
   Rect.fromLTWH(0, 0, 72, 120),
-  Rect.fromLTWH(72, 0, 46, 156),
-  Rect.fromLTWH(118, 0, 78, 118),
-  Rect.fromLTWH(196, 0, 68, 140),
-  Rect.fromLTWH(264, 0, 66, 113),
-  Rect.fromLTWH(330, 0, 66, 114),
-  Rect.fromLTWH(396, 0, 58, 123),
-  Rect.fromLTWH(454, 0, 76, 124),
-  Rect.fromLTWH(648, 0, 64, 115),
+  Rect.fromLTWH(73, 0, 46, 156),
+  Rect.fromLTWH(199, 0, 68, 140),
+  Rect.fromLTWH(120, 0, 78, 118),
+  Rect.fromLTWH(268, 0, 66, 113),
+  Rect.fromLTWH(335, 0, 66, 114),
+  Rect.fromLTWH(658, 0, 64, 115),
+  Rect.fromLTWH(461, 0, 76, 124),
+  Rect.fromLTWH(402, 0, 58, 123),
 ];
+
+// 0xFF2FE7C5
+// 0xFFEB885A
+// 0xFF925538
+// 0xFFC6724B
 
 class HoverableIsometricTile extends StatefulWidget {
   const HoverableIsometricTile({
@@ -119,6 +124,9 @@ class _HoverableIsometricTileState extends State<HoverableIsometricTile>
     }
   }
 
+  // 584D3D
+  // 9F956C
+
   @override
   Widget build(BuildContext context) {
     return CustomMouseRegion(
@@ -141,10 +149,10 @@ class _HoverableIsometricTileState extends State<HoverableIsometricTile>
               children: [
                 AnimatedIsometricTile(
                   top: widget.tile.isCorrect
-                      ? const Color(0xFF2FE7C5)
-                      : const Color(0xFFEB885A),
-                  left: const Color(0xFF925538),
-                  right: const Color(0xFFC6724B),
+                      ? const Color(0xFF66BB6A)
+                      : const Color(0xFF8D6E63),
+                  right: const Color(0xFF795548),
+                  left: const Color(0xFF6D4C41),
                   duration: const Duration(milliseconds: 500),
                   curve: Curves.easeOut,
                 ),
@@ -156,6 +164,7 @@ class _HoverableIsometricTileState extends State<HoverableIsometricTile>
                         puzzleId: id,
                         isTileAtCorrectPosition: widget.tile.isCorrect,
                         tileRect: _tileRects[widget.tile.correctIndex],
+                        value: widget.tile.correctIndex + 1,
                       );
                     },
                   ),
@@ -220,41 +229,72 @@ class Crop extends StatefulWidget {
     required this.isTileAtCorrectPosition,
     required this.tileRect,
     required this.puzzleId,
+    required this.value,
   }) : super(key: key);
 
   final bool isTileAtCorrectPosition;
   final Rect tileRect;
   final int puzzleId;
+  final int value;
 
   @override
   State<Crop> createState() => _CropState();
 }
 
-class _CropState extends State<Crop> {
+class _CropState extends State<Crop> with SingleTickerProviderStateMixin {
   late int count = widget.isTileAtCorrectPosition ? 1 : 0;
+  late final animationController = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 300),
+  );
+
+  late final opacity = CurvedAnimation(
+    parent: animationController,
+    curve: Curves.easeOut,
+    reverseCurve: Curves.easeOut.flipped,
+  ).drive(Tween<double>(
+    begin: 1,
+    end: 0,
+  ));
 
   @override
   void didUpdateWidget(covariant Crop oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.puzzleId != widget.puzzleId) {
-      setState(() {
-        count = 0;
-      });
+      update(0);
     }
 
     if (oldWidget.isTileAtCorrectPosition != widget.isTileAtCorrectPosition &&
         widget.isTileAtCorrectPosition) {
-      setState(() {
-        count++;
-      });
+      if (count < widget.value) {
+        update(count + 1);
+      }
     }
+  }
+
+  Future<void> update(int newValue) async {
+    await animationController.forward();
+    setState(() {
+      count = newValue;
+    });
+    await animationController.reverse();
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SpritePaint(
-      tile: widget.tileRect,
-      count: count,
+    return FadeTransition(
+      opacity: opacity,
+      child: SpritePaint(
+        tile: widget.tileRect,
+        count: count,
+        max: widget.value,
+      ),
     );
   }
 }

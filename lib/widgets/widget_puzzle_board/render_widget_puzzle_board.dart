@@ -15,8 +15,8 @@ class WidgetPuzzleBoardLink {
 
 class RenderWidgetPuzzleBoard extends RenderBox
     with
-        ContainerRenderObjectMixin<RenderBox, PuzzleBoardParentData>,
-        RenderBoxContainerDefaultsMixin<RenderBox, PuzzleBoardParentData> {
+        ContainerRenderObjectMixin<RenderBox, BoardParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, BoardParentData> {
   RenderWidgetPuzzleBoard({
     List<RenderBox>? children,
     required int columns,
@@ -75,8 +75,8 @@ class RenderWidgetPuzzleBoard extends RenderBox
 
   @override
   void setupParentData(covariant RenderObject child) {
-    if (child.parentData is! PuzzleBoardParentData) {
-      child.parentData = PuzzleBoardParentData();
+    if (child.parentData is! BoardParentData) {
+      child.parentData = BoardParentData();
     }
   }
 
@@ -127,7 +127,7 @@ class RenderWidgetPuzzleBoard extends RenderBox
 
     visitTileChildren((child) {
       child.layout(childConstraints);
-      final childParentData = child.parentData as PuzzleBoardParentData;
+      final childParentData = child.parentData as BoardParentData;
       final row = childParentData.row!;
       final column = childParentData.column!;
       childParentData.offset = Offset(
@@ -141,7 +141,7 @@ class RenderWidgetPuzzleBoard extends RenderBox
     RenderBox? child = childAfter(firstChild!);
     while (child != null) {
       visitor(child);
-      final childParentData = child.parentData! as PuzzleBoardParentData;
+      final childParentData = child.parentData! as BoardParentData;
       child = childParentData.nextSibling;
     }
   }
@@ -186,7 +186,7 @@ class RenderWidgetPuzzleBoard extends RenderBox
   void paint(PaintingContext context, Offset offset) {
     RenderBox? child = childAfter(firstChild!);
     while (child != null) {
-      final childParentData = child.parentData! as PuzzleBoardParentData;
+      final childParentData = child.parentData! as BoardParentData;
       context.paintChild(child, childParentData.offset + offset);
       context.canvas.saveLayer(Rect.largest, Paint());
       context.canvas.restore();

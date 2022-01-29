@@ -1,11 +1,13 @@
+import 'dart:math' as math;
+
 import 'package:flutter/rendering.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_board/render_puzzle_board.dart';
 
-class RenderIsometricPuzzleBoard extends RenderBox
+class RenderIsometricBoard extends RenderBox
     with
-        ContainerRenderObjectMixin<RenderBox, PuzzleBoardParentData>,
-        RenderBoxContainerDefaultsMixin<RenderBox, PuzzleBoardParentData> {
-  RenderIsometricPuzzleBoard({
+        ContainerRenderObjectMixin<RenderBox, BoardParentData>,
+        RenderBoxContainerDefaultsMixin<RenderBox, BoardParentData> {
+  RenderIsometricBoard({
     List<RenderBox>? children,
     required int columns,
     required int rows,
@@ -48,8 +50,8 @@ class RenderIsometricPuzzleBoard extends RenderBox
 
   @override
   void setupParentData(covariant RenderObject child) {
-    if (child.parentData is! PuzzleBoardParentData) {
-      child.parentData = PuzzleBoardParentData();
+    if (child.parentData is! BoardParentData) {
+      child.parentData = BoardParentData();
     }
   }
 
@@ -73,8 +75,10 @@ class RenderIsometricPuzzleBoard extends RenderBox
     final halfChildWidth = childWidth / 2;
     final quarterChildWidth = childWidth / 4;
     final effectiveHeight = size.height - totalSpacing / 2;
-    final childHeight =
-        effectiveHeight - (rows + columns - 2) * quarterChildWidth;
+    final childHeight = math.max(
+      0.0,
+      effectiveHeight - (rows + columns - 2) * quarterChildWidth,
+    );
 
     final childConstraints = BoxConstraints.tightFor(
       width: childWidth,
@@ -83,7 +87,7 @@ class RenderIsometricPuzzleBoard extends RenderBox
 
     visitChildren((child) {
       child.layout(childConstraints);
-      final childParentData = child.parentData as PuzzleBoardParentData;
+      final childParentData = child.parentData as BoardParentData;
       final row = childParentData.row!;
       final column = childParentData.column!;
       childParentData.offset = Offset(
@@ -100,7 +104,7 @@ class RenderIsometricPuzzleBoard extends RenderBox
     final list = _orderedList.reversed.toList();
 
     for (final child in list) {
-      final childParentData = child.parentData! as PuzzleBoardParentData;
+      final childParentData = child.parentData! as BoardParentData;
       final bool isHit = result.addWithPaintOffset(
         offset: childParentData.offset,
         position: position,
@@ -120,7 +124,7 @@ class RenderIsometricPuzzleBoard extends RenderBox
   void paint(PaintingContext context, Offset offset) {
     // We need to iterate over each column, and then each row.
     for (final child in _orderedList) {
-      final childParentData = child.parentData! as PuzzleBoardParentData;
+      final childParentData = child.parentData! as BoardParentData;
       context.paintChild(child, childParentData.offset + offset);
     }
   }
@@ -130,8 +134,8 @@ class RenderIsometricPuzzleBoard extends RenderBox
     final list = getChildrenAsList();
 
     list.sort((a, b) {
-      final parentDataA = a.parentData as PuzzleBoardParentData;
-      final parentDataB = b.parentData as PuzzleBoardParentData;
+      final parentDataA = a.parentData as BoardParentData;
+      final parentDataB = b.parentData as BoardParentData;
       final depthA = parentDataA.column! + parentDataA.row!;
       final depthB = parentDataB.column! + parentDataB.row!;
 

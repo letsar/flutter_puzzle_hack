@@ -1,8 +1,8 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_puzzle_hack/widgets/isometric/render_isometric_puzzle_board.dart';
+import 'package:flutter_puzzle_hack/widgets/isometric/render_isometric_board.dart';
 
-class IsometricPuzzleBoard extends MultiChildRenderObjectWidget {
-  IsometricPuzzleBoard({
+class IsometricBoard extends MultiChildRenderObjectWidget {
+  IsometricBoard({
     Key? key,
     required this.columns,
     required this.rows,
@@ -16,7 +16,7 @@ class IsometricPuzzleBoard extends MultiChildRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    return RenderIsometricPuzzleBoard(
+    return RenderIsometricBoard(
       columns: columns,
       rows: rows,
       spacing: spacing,
@@ -26,7 +26,7 @@ class IsometricPuzzleBoard extends MultiChildRenderObjectWidget {
   @override
   void updateRenderObject(
     BuildContext context,
-    RenderIsometricPuzzleBoard renderObject,
+    RenderIsometricBoard renderObject,
   ) {
     renderObject
       ..columns = columns

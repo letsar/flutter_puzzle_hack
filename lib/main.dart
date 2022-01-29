@@ -3,7 +3,8 @@ import 'package:flutter_puzzle_hack/extensions/build_context.dart';
 import 'package:flutter_puzzle_hack/models/notifiers.dart';
 import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
-import 'package:flutter_puzzle_hack/widgets/isometric/isometric_puzzle_board.dart';
+import 'package:flutter_puzzle_hack/puzzles/nature.dart';
+import 'package:flutter_puzzle_hack/widgets/isometric/isometric_board.dart';
 import 'package:flutter_puzzle_hack/widgets/isometric/isometric_tile.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_board/puzzle_tile_position.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/isometric_sliding_puzzle.dart';
@@ -12,7 +13,18 @@ import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/sliding_puzzle.dart';
 void main() {
   // runApp(const MyWidgetApp());
   // runApp(const IsometricApp());
-  runApp(const MyApp());
+  runApp(const PuzzleApp());
+}
+
+class PuzzleApp extends StatelessWidget {
+  const PuzzleApp({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(home: NaturePuzzle());
+  }
 }
 
 class IsometricApp extends StatelessWidget {
@@ -59,7 +71,7 @@ class IsoBoard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IsometricPuzzleBoard(
+    return IsometricBoard(
       columns: columns,
       rows: rows,
       spacing: spacing,
@@ -134,67 +146,74 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watchValue<PuzzleController>();
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Puzzle Hack Challenge'),
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            const NumberOfMoves(),
-            const TilesLeft(),
-            const ElapsedTime(),
-            Expanded(
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: AnimatedBuilder(
-                    animation: controller,
-                    builder: (context, child) {
-                      final puzzle = controller.puzzle;
+    return Container(
+      color: const Color(0xFFFFE7C9),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8.0,
+                  horizontal: 8.0,
+                ),
+                child: AnimatedBuilder(
+                  animation: controller,
+                  builder: (context, child) {
+                    final puzzle = controller.puzzle;
 
-                      return SlidingPuzzle(
-                        configuration: SlidingPuzzleConfiguration(
-                          columns: puzzle.columns,
-                          rows: puzzle.rows,
-                          columnSpacing: 2,
-                          tiles: controller.tiles,
-                          tileBuilder: (context, tile, child) {
-                            return AnimatedTile(
-                              tile: tile,
-                              child: child,
-                            );
-                          },
-                        ),
-                        // delegate: WidgetSlidingPuzzleDelegate(
-                        //   // source: SizedBox.expand(
-                        //   //   child: ColoredBox(
-                        //   //     color: Colors.amber,
-                        //   //     // child: MyTemplateHomePage(),
-                        //   //     child: Center(
-                        //   //       child: Padding(
-                        //   //         padding: const EdgeInsets.all(8.0),
-                        //   //         child: AspectRatio(
-                        //   //           aspectRatio: 1,
-                        //   //           child: CircularProgressIndicator(),
-                        //   //         ),
-                        //   //       ),
-                        //   //     ),
-                        //   //   ),
-                        //   // ),
-                        //   // source: const FlutterTemplatePuzzle(),
-                        //   source: const FlutterLogoPuzzle(),
-                        // ),
-                        delegate: IsometricSlidingPuzzleDelegate(),
-                      );
-                    },
-                  ),
+                    return SlidingPuzzle(
+                      configuration: SlidingPuzzleConfiguration(
+                        columns: puzzle.columns,
+                        rows: puzzle.rows,
+                        columnSpacing: 2,
+                        tiles: controller.tiles,
+                        tileBuilder: (context, tile, child) {
+                          return AnimatedTile(
+                            tile: tile,
+                            child: child,
+                          );
+                        },
+                      ),
+                      // delegate: WidgetSlidingPuzzleDelegate(
+                      //   // source: SizedBox.expand(
+                      //   //   child: ColoredBox(
+                      //   //     color: Colors.amber,
+                      //   //     // child: MyTemplateHomePage(),
+                      //   //     child: Center(
+                      //   //       child: Padding(
+                      //   //         padding: const EdgeInsets.all(8.0),
+                      //   //         child: AspectRatio(
+                      //   //           aspectRatio: 1,
+                      //   //           child: CircularProgressIndicator(),
+                      //   //         ),
+                      //   //       ),
+                      //   //     ),
+                      //   //   ),
+                      //   // ),
+                      //   // source: const FlutterTemplatePuzzle(),
+                      //   source: const FlutterLogoPuzzle(),
+                      // ),
+                      delegate: IsometricSlidingPuzzleDelegate(),
+                    );
+                  },
                 ),
               ),
             ),
-            const SuffleButton(),
-          ],
-        ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Column(
+              children: [
+                const NumberOfMoves(),
+                const TilesLeft(),
+                const ElapsedTime(),
+                const SuffleButton(),
+              ],
+            ),
+          )
+        ],
       ),
     );
   }

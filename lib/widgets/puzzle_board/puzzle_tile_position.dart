@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_board/puzzle_board.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_board/render_puzzle_board.dart';
 
-class PuzzleTilePosition extends ParentDataWidget<PuzzleBoardParentData> {
+class PuzzleTilePosition extends ParentDataWidget<BoardParentData> {
   const PuzzleTilePosition({
     Key? key,
     required this.column,
@@ -16,8 +16,8 @@ class PuzzleTilePosition extends ParentDataWidget<PuzzleBoardParentData> {
 
   @override
   void applyParentData(RenderObject renderObject) {
-    assert(renderObject.parentData is PuzzleBoardParentData);
-    final parentData = renderObject.parentData! as PuzzleBoardParentData;
+    assert(renderObject.parentData is BoardParentData);
+    final parentData = renderObject.parentData! as BoardParentData;
     bool needsLayout = false;
 
     if (parentData.column != column) {
@@ -78,16 +78,6 @@ class _AnimatedPuzzleTilePositionState
     extends AnimatedWidgetBaseState<AnimatedPuzzleTilePosition> {
   Tween<double>? _column;
   Tween<double>? _row;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void didUpdateWidget(covariant AnimatedPuzzleTilePosition oldWidget) {
-    super.didUpdateWidget(oldWidget);
-  }
 
   @override
   void forEachTween(TweenVisitor<dynamic> visitor) {
