@@ -1,43 +1,12 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_puzzle_hack/extensions/build_context.dart';
-import 'package:flutter_puzzle_hack/main.dart';
 import 'package:flutter_puzzle_hack/models/notifiers.dart';
 import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
 import 'package:flutter_puzzle_hack/widgets/isometric/isometric_button.dart';
 import 'package:flutter_puzzle_hack/widgets/isometric/isometric_string.dart';
+import 'package:flutter_puzzle_hack/widgets/puzzle_board/puzzle_tile.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/isometric_sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/sliding_puzzle.dart';
-
-const _angle = -30 * pi / 180;
-
-const colors = [
-  Color(0xFF8D6E63),
-  Color(0xFF795548),
-  Color(0xFF6D4C41),
-  Color(0xFF66BB6A),
-  Color(0xFF4CAF50),
-  Color(0xFF43A047),
-  Color(0xFF66BB6A),
-  Color(0xFF795548),
-  Color(0xFF6D4C41),
-  Color(0xFF78909C),
-  Color(0xFF607D8B),
-  Color(0xFF546E7A),
-  Color(0xFF43A047),
-  Color(0xFF607D8B),
-  Color(0xFF546E7A),
-  Color(0xFFFAFAFA),
-  Color(0xFFF5F5F5),
-  Color(0xFFEEEEEE),
-];
-
-const _sandColor = Color(0xFFFFE7C9);
-const _dirt1Color = Color(0xFFFFE7C9);
-const _dirt2Color = Color(0xFFFFE7C9);
-const _dirt3Color = Color(0xFFFFE7C9);
-const _grassColor = Color(0xFFFFE7C9);
 
 class NaturePuzzle extends StatefulWidget {
   const NaturePuzzle({

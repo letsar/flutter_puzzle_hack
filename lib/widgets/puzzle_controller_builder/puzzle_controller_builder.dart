@@ -12,14 +12,14 @@ class PuzzleControllerBuilder<T> extends StatelessWidget {
   }) : super(key: key);
 
   final ValueListenable<T> Function(PuzzleController) selector;
-  final ValueWidgetBuilder builder;
+  final ValueWidgetBuilder<T> builder;
   final Widget? child;
 
   @override
   Widget build(BuildContext context) {
     final puzzleController = context.watchValue<PuzzleController>();
 
-    return ValueListenableBuilder(
+    return ValueListenableBuilder<T>(
       valueListenable: selector(puzzleController),
       builder: builder,
       child: child,

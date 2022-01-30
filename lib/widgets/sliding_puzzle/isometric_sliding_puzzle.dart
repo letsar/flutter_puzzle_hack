@@ -153,7 +153,7 @@ class _HoverableIsometricTileState extends State<HoverableIsometricTile>
                   curve: Curves.easeOut,
                 ),
                 Positioned.fill(
-                  child: PuzzleControllerBuilder(
+                  child: PuzzleControllerBuilder<int>(
                     selector: (pc) => pc.id,
                     builder: (context, id, child) {
                       return Crop(

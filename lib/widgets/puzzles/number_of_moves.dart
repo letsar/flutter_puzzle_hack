@@ -30,7 +30,6 @@ class NumberOfMovesPuzzle extends StatelessWidget {
                 duration: Duration(milliseconds: 300),
                 curve: ElasticOutCurve(1),
                 builder: (context, value, child) {
-                  print(value);
                   return Transform.scale(scale: value, child: child);
                 },
                 child: Text(

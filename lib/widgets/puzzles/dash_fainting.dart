@@ -7,6 +7,9 @@ class DashFaintingPuzzle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset('assets/dash_fainting.gif');
+    return Image.asset(
+      'assets/dash_fainting.gif',
+      fit: BoxFit.fitWidth,
+    );
   }
 }
