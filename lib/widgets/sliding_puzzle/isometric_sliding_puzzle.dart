@@ -124,9 +124,6 @@ class _HoverableIsometricTileState extends State<HoverableIsometricTile>
     }
   }
 
-  // 584D3D
-  // 9F956C
-
   @override
   Widget build(BuildContext context) {
     return CustomMouseRegion(
@@ -139,7 +136,6 @@ class _HoverableIsometricTileState extends State<HoverableIsometricTile>
       onExit: (_) {
         isHover = false;
       },
-      onHover: (_) {},
       child: SlideTransition(
         position: position,
         child: AnimatedBuilder(

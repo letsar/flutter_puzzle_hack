@@ -37,7 +37,7 @@ class IsometricString extends StatelessWidget {
     const rows = 5;
     final x = columns + rows;
     return Container(
-      color: Color(0xFF346577),
+      color: Color(0x00346577),
       child: AspectRatio(
         aspectRatio: (2 * x) / (2 + x),
         child: _RawIsometricString(
@@ -91,7 +91,9 @@ class _RawIsometricString extends StatelessWidget {
             5,
             (index) => PuzzleTilePosition(
               column: topToBottom ? column : index.toDouble(),
-              row: topToBottom ? index.toDouble() : columns - column,
+              row: topToBottom
+                  ? index.toDouble()
+                  : (columns - column).toDouble(),
               child: Voxel.off(
                 duration: duration,
                 curve: curve,
@@ -115,7 +117,7 @@ class _RawIsometricString extends StatelessWidget {
         final isOn = indexes.contains(index);
         yield PuzzleTilePosition(
           column: topToBottom ? column : r.toDouble(),
-          row: topToBottom ? r.toDouble() : columns - column,
+          row: topToBottom ? r.toDouble() : (columns - column).toDouble(),
           child: Voxel(
             isOn: isOn,
             duration: duration,
@@ -154,11 +156,11 @@ class _VoxelState extends AnimatedWidgetBaseState<Voxel> {
   @override
   void forEachTween(TweenVisitor<dynamic> visitor) {
     _heightFactor =
-        visitor(_heightFactor, widget.isOn ? 1 : 0.5, (dynamic value) {
+        visitor(_heightFactor, widget.isOn ? 1.0 : 0.5, (dynamic value) {
       return Tween<double>(begin: value as double);
     }) as Tween<double>?;
 
-    _opacity = visitor(_opacity, widget.isOn ? 1 : 0, (dynamic value) {
+    _opacity = visitor(_opacity, widget.isOn ? 1.0 : 0.0, (dynamic value) {
       return Tween<double>(begin: value as double);
     }) as Tween<double>?;
   }

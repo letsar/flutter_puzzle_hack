@@ -5,6 +5,7 @@ import 'package:flutter_puzzle_hack/extensions/build_context.dart';
 import 'package:flutter_puzzle_hack/main.dart';
 import 'package:flutter_puzzle_hack/models/notifiers.dart';
 import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
+import 'package:flutter_puzzle_hack/widgets/isometric/isometric_button.dart';
 import 'package:flutter_puzzle_hack/widgets/isometric/isometric_string.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/isometric_sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/sliding_puzzle.dart';
@@ -72,54 +73,84 @@ class _Game extends StatelessWidget {
     final controller = context.watchValue<PuzzleController>();
     return Container(
       color: const Color(0xFFF7F3BA),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 8.0,
-                ),
-                child: AnimatedBuilder(
-                  animation: controller,
-                  builder: (context, child) {
-                    final puzzle = controller.puzzle;
+      child: OrientationBuilder(builder: (context, orientation) {
+        return Flex(
+          direction: orientation == Orientation.portrait
+              ? Axis.vertical
+              : Axis.horizontal,
+          children: [
+            Expanded(
+              flex: 2,
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8.0,
+                    horizontal: 8.0,
+                  ),
+                  child: AnimatedBuilder(
+                    animation: controller,
+                    builder: (context, child) {
+                      final puzzle = controller.puzzle;
 
-                    return SlidingPuzzle(
-                      configuration: SlidingPuzzleConfiguration(
-                        columns: puzzle.columns,
-                        rows: puzzle.rows,
-                        columnSpacing: 2,
-                        tiles: controller.tiles,
-                        tileBuilder: (context, tile, child) {
-                          return AnimatedTile(
-                            tile: tile,
-                            child: child,
-                          );
-                        },
-                      ),
-                      delegate: const IsometricSlidingPuzzleDelegate(),
-                    );
-                  },
+                      return SlidingPuzzle(
+                        configuration: SlidingPuzzleConfiguration(
+                          columns: puzzle.columns,
+                          rows: puzzle.rows,
+                          columnSpacing: 2,
+                          tiles: controller.tiles,
+                          tileBuilder: (context, tile, child) {
+                            return AnimatedTile(
+                              tile: tile,
+                              child: child,
+                            );
+                          },
+                        ),
+                        delegate: const IsometricSlidingPuzzleDelegate(),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Column(
-              children: [
-                const TilesLeft(),
-                const _ElapsedTime(),
-                const SuffleButton(),
-                const _NumberOfMoves(),
-              ],
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Center(
+                  child: Flex(
+                    direction: orientation == Orientation.landscape
+                        ? Axis.vertical
+                        : Axis.horizontal,
+                    children: [
+                      const Expanded(
+                        child: Center(
+                          child: _ElapsedTime(),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: IsometricButton(
+                            icon: Icons.shuffle,
+                            onPressed: () {
+                              context.readValue<PuzzleController>().shuffle();
+                            },
+                          ),
+                        ),
+                      ),
+                      const Expanded(
+                        child: Center(
+                          child: _NumberOfMoves(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
-          )
-        ],
-      ),
+          ],
+        );
+      }),
     );
   }
 }
@@ -134,8 +165,8 @@ class _ElapsedTime extends StatelessWidget {
     final controller = context.watchValue<PuzzleController>();
     final timer = controller.timer;
 
-    return SizedBox(
-      height: 160,
+    return Tooltip(
+      message: 'Elapsed time',
       child: AnimatedBuilder(
         animation: timer,
         builder: (context, child) {
@@ -143,8 +174,8 @@ class _ElapsedTime extends StatelessWidget {
           final label = _formatDuration(duration);
           return IsometricString(
             string: label,
-            duration: Duration(milliseconds: 500),
-            curve: ElasticOutCurve(1),
+            duration: const Duration(milliseconds: 500),
+            curve: const ElasticOutCurve(1),
             topToBottom: true,
           );
         },
@@ -168,35 +199,16 @@ class _NumberOfMoves extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watchValue<PuzzleController>();
-    return ValueListenableBuilder<int>(
-      valueListenable: controller.moveCount,
-      builder: (context, numberOfMoves, child) {
-        return IsometricString(
-          string: '$numberOfMoves',
-          duration: Duration(milliseconds: 500),
-          curve: ElasticOutCurve(1),
-          topToBottom: false,
-        );
-      },
-    );
-
-    return Transform(
-      transform: Matrix4.rotationZ(-_angle) * Matrix4.skewX(_angle),
+    return Tooltip(
+      message: 'Number of moves',
       child: ValueListenableBuilder<int>(
         valueListenable: controller.moveCount,
         builder: (context, numberOfMoves, child) {
-          return Text(
-            '$numberOfMoves',
-            style: Theme.of(context).textTheme.headline1!.copyWith(
-              color: Color(0xFFE7C46E),
-              shadows: [
-                Shadow(
-                  offset: Offset(2.0, 2.0),
-                  blurRadius: 2.0,
-                  color: Color(0xFFD1B369),
-                ),
-              ],
-            ),
+          return IsometricString(
+            string: '$numberOfMoves',
+            duration: Duration(milliseconds: 500),
+            curve: ElasticOutCurve(1),
+            topToBottom: false,
           );
         },
       ),
