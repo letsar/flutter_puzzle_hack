@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_puzzle_hack/generator/game_generator.dart';
 import 'package:flutter_puzzle_hack/models/puzzle.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
 import 'package:flutter_puzzle_hack/models/timer_notifier.dart';
@@ -124,13 +123,6 @@ class PuzzleController extends ChangeNotifier {
     moveCount.value = -1;
     id.value++;
     update();
-  }
-
-  void generateForToday() {
-    const generator = GameGenerator();
-    final newPuzzle = generator.generateForToday();
-    _puzzle = newPuzzle;
-    reset();
   }
 
   void update() {

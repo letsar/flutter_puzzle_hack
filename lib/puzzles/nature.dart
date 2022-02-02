@@ -2,32 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_puzzle_hack/extensions/build_context.dart';
 import 'package:flutter_puzzle_hack/models/notifiers.dart';
 import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
+import 'package:flutter_puzzle_hack/puzzles/puzzle_game.dart';
 import 'package:flutter_puzzle_hack/widgets/isometric/isometric_button.dart';
 import 'package:flutter_puzzle_hack/widgets/isometric/isometric_string.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_board/puzzle_tile.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/isometric_sliding_puzzle.dart';
 import 'package:flutter_puzzle_hack/widgets/sliding_puzzle/sliding_puzzle.dart';
 
-class NaturePuzzle extends StatefulWidget {
+class NaturePuzzle extends StatelessWidget {
   const NaturePuzzle({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<NaturePuzzle> createState() => _NaturePuzzleState();
-}
-
-class _NaturePuzzleState extends State<NaturePuzzle> {
-  final controller = PuzzleController(
-    columns: 3,
-    rows: 3,
-  )..shuffle();
-
-  @override
   Widget build(BuildContext context) {
-    return ValueProvider(
-      value: controller,
-      child: const _Game(),
+    return const PuzzleGame(
+      initialColumns: 3,
+      initialRows: 3,
+      child: _Game(),
     );
   }
 }

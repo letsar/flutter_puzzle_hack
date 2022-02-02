@@ -1,5 +1,4 @@
 import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_board/render_puzzle_board.dart';
 
 typedef _Painter = void Function(
@@ -87,7 +86,6 @@ class RenderWidgetPuzzleBoard extends RenderBox
   late double _childWidth;
   late double _childHeight;
   late double _rowSpacing;
-  late Rect _childClipRect;
 
   @override
   void performLayout() {
@@ -106,7 +104,6 @@ class RenderWidgetPuzzleBoard extends RenderBox
       _childWidth = 0;
       _childHeight = 0;
       _rowSpacing = 0;
-      _childClipRect = Rect.zero;
       childConstraints = BoxConstraints.tight(Size.zero);
     } else {
       _rowSpacing = _columnSpacing / _sourceSize.aspectRatio;
@@ -116,12 +113,6 @@ class RenderWidgetPuzzleBoard extends RenderBox
       childConstraints = BoxConstraints.tightFor(
         width: _childWidth,
         height: _childHeight,
-      );
-      _childClipRect = Rect.fromLTWH(
-        0,
-        0,
-        _childWidth,
-        _childHeight,
       );
     }
 
@@ -164,16 +155,6 @@ class RenderWidgetPuzzleBoard extends RenderBox
       column * (_childWidth + _columnSpacing),
       row * (_childHeight + _rowSpacing),
     );
-    // layer = context.pushClipRect(
-    //   // Should be true only with RepaintBoundaries ?
-    //   false,
-    //   offset,
-    //   _childClipRect,
-    //   (context, offset) {
-    //     context.paintChild(source, offset - sourceOffset);
-    //   },
-    //   oldLayer: layer as ClipRectLayer?,
-    // );
     context.clipRectAndPaint(
         Rect.fromLTWH(offset.dx, offset.dy, _childWidth, _childHeight),
         Clip.hardEdge,
@@ -188,9 +169,6 @@ class RenderWidgetPuzzleBoard extends RenderBox
     while (child != null) {
       final childParentData = child.parentData! as BoardParentData;
       context.paintChild(child, childParentData.offset + offset);
-      context.canvas.saveLayer(Rect.largest, Paint());
-      context.canvas.restore();
-      context.canvas.restore();
       child = childParentData.nextSibling;
     }
   }

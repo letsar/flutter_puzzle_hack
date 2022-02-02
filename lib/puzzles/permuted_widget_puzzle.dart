@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_puzzle_hack/extensions/build_context.dart';
 import 'package:flutter_puzzle_hack/models/notifiers.dart';
 import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
+import 'package:flutter_puzzle_hack/puzzles/puzzle_game.dart';
+import 'package:flutter_puzzle_hack/widgets/dialogs/app_dialog.dart';
+import 'package:flutter_puzzle_hack/widgets/dialogs/puzzle_solved_dialog.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_board/puzzle_tile.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzles/dash_fainting.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzles/flutter_logo.dart';
@@ -38,11 +41,6 @@ class PermutedWidgetPuzzle extends StatefulWidget {
 }
 
 class _PermutedWidgetPuzzleState extends State<PermutedWidgetPuzzle> {
-  final controller = PuzzleController(
-    columns: 4,
-    rows: 4,
-  )..shuffle();
-
   final gameTypeController = GameTypeController(puzzles: const [
     FlutterLogoPuzzle(),
     NumberOfMovesPuzzle(),
@@ -51,10 +49,11 @@ class _PermutedWidgetPuzzleState extends State<PermutedWidgetPuzzle> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ValueProvider(
-        value: controller,
-        child: NotifierProvider(
+    return PuzzleGame(
+      initialColumns: 4,
+      initialRows: 4,
+      child: Scaffold(
+        body: NotifierProvider(
           notifier: gameTypeController,
           child: const _Game(),
         ),
@@ -304,7 +303,9 @@ class ShuffleButton extends StatelessWidget {
     return OutlinedButton(
       child: const Text('Shuffle'),
       onPressed: () {
-        context.readValue<PuzzleController>().shuffle();
+        // TODO.
+        // context.readValue<PuzzleController>().shuffle();
+        AppDialog.show(context: context, child: const PuzzleSolvedDialog());
       },
     );
   }
@@ -395,21 +396,18 @@ class _PuzzleCarouselState extends State<PuzzleCarousel> {
   @override
   Widget build(BuildContext context) {
     final gameTypeController = context.watchNotifier<GameTypeController>();
-    print('GameType: ${gameTypeController.gameType}');
     return PageView(
       controller: pageController,
       children: [
         ...gameTypeController.puzzles.map(
           (child) {
-            return Center(
-              child: AspectRatio(
-                aspectRatio: 1,
-                child: AnimatedPadding(
-                  padding: child == gameTypeController.puzzle
-                      ? EdgeInsets.zero
-                      : const EdgeInsets.all(8.0),
-                  duration: const Duration(milliseconds: 400),
-                  curve: Curves.easeInOut,
+            return AnimatedScale(
+              scale: child == gameTypeController.puzzle ? 1 : 0.75,
+              duration: const Duration(milliseconds: 400),
+              curve: Curves.easeInOut,
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: 1,
                   child: IgnorePointer(
                     child: Center(
                       child: _PuzzleBoard(source: child),

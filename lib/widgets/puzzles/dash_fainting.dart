@@ -9,6 +9,7 @@ class DashFaintingPuzzle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Image.asset(
       'assets/dash_fainting.gif',
+      width: double.infinity,
       fit: BoxFit.fitWidth,
     );
   }
