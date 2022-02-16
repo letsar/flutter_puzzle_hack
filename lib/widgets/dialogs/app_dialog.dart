@@ -13,6 +13,7 @@ class AppDialog extends StatelessWidget {
     return Dialog(
       clipBehavior: Clip.antiAlias,
       backgroundColor: Colors.white,
+      insetPadding: const EdgeInsets.all(64),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(12),

@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:flutter_puzzle_hack/extensions/build_context.dart';
+import 'package:flutter_puzzle_hack/models/notifiers.dart';
 import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
 import 'package:flutter_puzzle_hack/models/tile.dart';
 import 'package:flutter_puzzle_hack/widgets/dialogs/app_dialog.dart';
@@ -107,7 +107,10 @@ class _SlidingPuzzleSuccessDisplayerState
     if (widget.controller.isSolved.value) {
       AppDialog.show(
         context: context,
-        child: const PuzzleSolvedDialog(),
+        child: ValueProvider(
+          value: widget.controller,
+          child: const PuzzleSolvedDialog(),
+        ),
       );
     }
   }

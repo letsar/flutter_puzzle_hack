@@ -14,21 +14,23 @@ class PuzzleSolvedDialog extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(24),
-      child: Column(
-        children: [
-          Text(
-            'Yiihaaaa!',
-            style: textTheme.headline1,
-          ),
-          Text(
-            '''Congratulations! You solved a puzzle '''
-            '''(${puzzleController.columns.value} columns and '''
-            '''${puzzleController.rows.value} rows) in '''
-            '''${puzzleController.timer.seconds} seconds with '''
-            '''${puzzleController.moveCount.value} moves!''',
-            style: textTheme.headline4,
-          ),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Text(
+              'Yiihaaaa!',
+              style: textTheme.headline1,
+            ),
+            Text(
+              '''Congratulations! You solved a puzzle '''
+              '''(${puzzleController.columns.value} columns and '''
+              '''${puzzleController.rows.value} rows) in '''
+              '''${puzzleController.timer.seconds} seconds with '''
+              '''${puzzleController.moveCount.value} moves!''',
+              style: textTheme.headline4,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -29,11 +29,9 @@ class _PuzzleGameState extends State<PuzzleGame> {
   Widget build(BuildContext context) {
     return ValueProvider(
       value: controller,
-      child: MaterialApp(
-        home: SlidingPuzzleSuccessDisplayer(
-          controller: controller,
-          child: widget.child,
-        ),
+      child: SlidingPuzzleSuccessDisplayer(
+        controller: controller,
+        child: widget.child,
       ),
     );
   }

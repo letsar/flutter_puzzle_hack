@@ -3,8 +3,6 @@ import 'package:flutter_puzzle_hack/extensions/build_context.dart';
 import 'package:flutter_puzzle_hack/models/notifiers.dart';
 import 'package:flutter_puzzle_hack/models/puzzle_controller.dart';
 import 'package:flutter_puzzle_hack/puzzles/puzzle_game.dart';
-import 'package:flutter_puzzle_hack/widgets/dialogs/app_dialog.dart';
-import 'package:flutter_puzzle_hack/widgets/dialogs/puzzle_solved_dialog.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzle_board/puzzle_tile.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzles/dash_fainting.dart';
 import 'package:flutter_puzzle_hack/widgets/puzzles/flutter_logo.dart';
@@ -31,16 +29,16 @@ class GameTypeController extends ChangeNotifier {
   Widget get puzzle => puzzles[_gameType];
 }
 
-class PermutedWidgetPuzzle extends StatefulWidget {
-  const PermutedWidgetPuzzle({
+class SwappedWidgetPuzzle extends StatefulWidget {
+  const SwappedWidgetPuzzle({
     Key? key,
   }) : super(key: key);
 
   @override
-  State<PermutedWidgetPuzzle> createState() => _PermutedWidgetPuzzleState();
+  State<SwappedWidgetPuzzle> createState() => _SwappedWidgetPuzzleState();
 }
 
-class _PermutedWidgetPuzzleState extends State<PermutedWidgetPuzzle> {
+class _SwappedWidgetPuzzleState extends State<SwappedWidgetPuzzle> {
   final gameTypeController = GameTypeController(puzzles: const [
     FlutterLogoPuzzle(),
     NumberOfMovesPuzzle(),
@@ -95,24 +93,16 @@ class _Game extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Center(
               child: Column(
-                children: [
-                  const Expanded(
-                    child: Center(
-                      child: ElapsedTime(),
-                    ),
-                  ),
+                children: const [
+                  ElapsedTime(),
+                  NumberOfMoves(),
                   Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: EdgeInsets.all(16.0),
                     child: ShuffleButton(),
                   ),
                   RowsSlider(),
                   ColumnsSlider(),
                   Expanded(child: PuzzleCarousel()),
-                  const Expanded(
-                    child: Center(
-                      child: NumberOfMoves(),
-                    ),
-                  ),
                 ],
               ),
             ),
@@ -127,9 +117,11 @@ class _PuzzleBoard extends StatelessWidget {
   const _PuzzleBoard({
     Key? key,
     required this.source,
+    this.borderRadius = 8,
   }) : super(key: key);
 
   final Widget source;
+  final double borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -150,7 +142,7 @@ class _PuzzleBoard extends StatelessWidget {
                 tile: tile,
                 child: Container(
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(borderRadius),
                   ),
                   clipBehavior: Clip.antiAlias,
                   child: child,
@@ -179,47 +171,6 @@ class ChangingGame extends StatelessWidget {
         return numberOfMoves.isEven
             ? const FlutterLogoPuzzle()
             : const NumberOfMovesPuzzle();
-      },
-    );
-  }
-}
-
-class DimensionButton extends StatelessWidget {
-  const DimensionButton({
-    Key? key,
-    this.min = 2,
-    this.max = 8,
-    required this.valueNotifier,
-    required this.direction,
-  })  : assert(min < max),
-        super(key: key);
-
-  final int min;
-  final int max;
-  final ValueNotifier<int> valueNotifier;
-  final Axis direction;
-
-  @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<int>(
-      valueListenable: valueNotifier,
-      builder: (context, value, child) {
-        return Flex(
-          direction: direction,
-          children: [
-            TextButton(
-              onPressed: value > min ? () => valueNotifier.value-- : null,
-              child: Text('-'),
-            ),
-            Expanded(
-              child: Center(child: Text('$value')),
-            ),
-            TextButton(
-              onPressed: value < max ? () => valueNotifier.value++ : null,
-              child: Text('+'),
-            ),
-          ],
-        );
       },
     );
   }
@@ -303,9 +254,7 @@ class ShuffleButton extends StatelessWidget {
     return OutlinedButton(
       child: const Text('Shuffle'),
       onPressed: () {
-        // TODO.
-        // context.readValue<PuzzleController>().shuffle();
-        AppDialog.show(context: context, child: const PuzzleSolvedDialog());
+        context.readValue<PuzzleController>().shuffle();
       },
     );
   }
@@ -410,7 +359,10 @@ class _PuzzleCarouselState extends State<PuzzleCarousel> {
                   aspectRatio: 1,
                   child: IgnorePointer(
                     child: Center(
-                      child: _PuzzleBoard(source: child),
+                      child: _PuzzleBoard(
+                        borderRadius: 0,
+                        source: child,
+                      ),
                     ),
                   ),
                 ),
